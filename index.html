@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Activecrowd by rigsby-chi</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Activecrowd</h1>
+        <h2>A fully automated active learning framework with ability of using Amazon Mechanical Turk for sample labeling</h2>
+        <a href="https://github.com/rigsby-chi/ActiveCrowd" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="welcome-to-activecrowd" class="anchor" href="#welcome-to-activecrowd" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to ActiveCrowd.</h1>
+
+<p><strong>Active Crowd</strong> is an automated active learning framework that enable users to perform <strong>low cost and efficient supervised learning</strong> for classification </p>
+
+<p>under environment that labels are not provided along with samples. It can select the most desirable samples to be labeled and thus dramatically the cost of </p>
+
+<p>labeling and learning. Moreover, the <strong>ActiveCrowd framework</strong> provides the ability of submitting samples to <strong>Amazon Mechanical Turk</strong> so you can obtain </p>
+
+<p>scalable and on-demand workforce to perform labeling labels instead of labeling samples by yourself. Comprehensive monitoring and performance evaluation tools </p>
+
+<p>are also provided to adjust the learning direction, assess the learning efficiency and improve classification accuracy.  </p>
+
+<p>To run the framework, switch the current directory to the framework location and execute run.py:  </p>
+
+<pre><code>$ cd &lt;path_to_framework&gt;/ActiveCrowd
+$ python run.py
+</code></pre>
+
+<p>Then you can access the framework via any browser as follow:   </p>
+
+<p><img src="http://i.imgur.com/bZATTVB.png" alt="Home Page"><br>
+<em>*This framework is design for Linux. No Windows version is available for now.</em></p>
+
+<hr>
+
+<h2>
+<a id="1-installation-and-setup" class="anchor" href="#1-installation-and-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Installation and Setup</h2>
+
+<h3>
+<a id="1-1-necessary-software-and-packages" class="anchor" href="#1-1-necessary-software-and-packages" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. 1 Necessary software and packages</h3>
+
+<p>To use the ActiveCrowd framework, first you need Python, PostgreSQL and some libraries installed:  </p>
+
+<ul>
+<li>Python 2.7<br>
+</li>
+<li>PostgreSQL</li>
+<li>Java Runtime Environment (JRE)</li>
+<li>NumPy</li>
+<li>scikit-learn</li>
+<li>Psycopg2 </li>
+<li>Flask</li>
+</ul>
+
+<p>If you are using Ubuntu, you can install the above packages with the following commands:</p>
+
+<pre><code>sudo add-apt-repository ppa:fkrull/deadsnakes
+sudo apt-get update
+sudo apt-get install python2.7
+sudo apt-get install postgresql postgresql-contrib
+sudo apt-get install default-jre
+sudo apt-get install python-numpy
+sudo apt-get install python-sklearn
+sudo apt-get install libpq-dev
+sudo apt-get install python-pip
+sudo pip install Flask
+sudo pip install psycopg2
+</code></pre>
+
+<p>You also need to set the "JAVA_HOME" environment variable. Execute the following command to find out the path to java.</p>
+
+<pre><code>sudo update-alternatives --config java
+</code></pre>
+
+<p>Then execute the command:</p>
+
+<pre><code>sudo gedit /etc/environment
+</code></pre>
+
+<p>Add a new row and save the file:</p>
+
+<pre><code>JAVA_HOME="Path_To_Java"
+</code></pre>
+
+<p>Finally, reload the file:</p>
+
+<pre><code>source /etc/environment
+</code></pre>
+
+<h3>
+<a id="1-2-postgresql-configuration" class="anchor" href="#1-2-postgresql-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. 2 PostgreSQL Configuration</h3>
+
+<p>It is recommended that an independent database and database user are created for the framework. To do so, you may execute the following commands:</p>
+
+<pre><code>$ sudo su - postgres
+$ createdb activecrowd
+$ psql -s activecrowd
+# create user &lt;user_name&gt; password '&lt;user_password&gt;';
+# GRANT ALL PRIVILEGES ON DATABASE activecrowd TO &lt;user_name&gt;;
+</code></pre>
+
+<p>Also, you need to change the authentication method from peer to md5 by executing the following command to open <code>pg_hba.conf</code>:</p>
+
+<pre><code>sudo gedit /etc/postgresql/9.3/main/pg_hba.conf
+</code></pre>
+
+<p>Find the following line:</p>
+
+<pre><code>local   all             all                                     peer
+</code></pre>
+
+<p>Replace peer to md5:</p>
+
+<pre><code>local   all             all                                     md5
+</code></pre>
+
+<p>Save the file and execute <code>sudo service postgresql restart</code> to restart PostgreSQL</p>
+
+<h3>
+<a id="1-3-framework-setup" class="anchor" href="#1-3-framework-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. 3 Framework Setup</h3>
+
+<p>Switch terminal's current directory to the unzipped framework folder and execute run.py:  </p>
+
+<pre><code>$ cd &lt;path_to_framework&gt;/ActiveCrowd
+$ python run.py
+</code></pre>
+
+<p>Then you can access the framework on any browser. The first launch of the framework require a simple setup operation. First you need to provide database name, </p>
+
+<p>database user and database user password (as created in 1. 2):   </p>
+
+<p><img src="http://i.imgur.com/6XtDAWJ.png" alt="Framework first launch setup"></p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/rigsby-chi/ActiveCrowd/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/rigsby-chi/ActiveCrowd/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/rigsby-chi/ActiveCrowd"></a> is maintained by <a href="https://github.com/rigsby-chi">rigsby-chi</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
