@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block head %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+  <div class="col-md-1 main"></div>
+  <div class="col-md-10 main">
+    <div id="message"></div>
+    <h1 class="page-header">Setup</h1>
+      <form role="form" id="setup" method="POST">
+        <!-- First part: Database configuration -->
+        <fieldset id="part1">
+          <legend>Database details</legend>
+          <div class="row required">
+            <label class="control-label">DB name: </label>
+            <input type="text" class="form-control" name="DBName" maxlength="50">
+          </div>
+          <div class="row required">
+            <label class="control-label">DB user name: </label>
+            <input type="text" class="form-control" name="DBUser" maxlength="50">
+          </div>
+          <div class="row required">
+            <label class="control-label">DB password: </label>
+            <input type="password" class="form-control" name="DBPassword" maxlength="50">
+          </div>
+        </fieldset>
+        
+        <!-- Second part: MTurk access configuration -->
+        <fieldset id="part2">
+          <legend>Default MTurk Access</legend>
+          <div class="row">
+            <label class="control-label">AWS Key: </label>
+            <input type="text" name="AWSKey" class="form-control" maxlength="20" />
+            <span class="glyphicon glyphicon-question-sign" 
+              aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+              title="Captured form Amazon website for identifying your MTurk account"></span>
+          </div>
+        
+          <div class="row">
+            <label class="control-label">AWS Secret Key: </label>
+            <input type="password" class="form-control" name="AWSSecretKey" maxlength="40" />
+            <span class="glyphicon glyphicon-question-sign" 
+              aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+              title="Captured form Amazon website for verifying your MTurk account"></span>
+          </div>
+        </fieldset>
+      </form>
+  </div>
+  <div class="col-md-1 main"></div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/message.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+  
+    var isSuccess = false;
+    //Ask server side to perform db and mturk checking
+    $("body").on('click', '.action > button[name="save"]', function(e) {
+      $.getJSON($SCRIPT_ROOT + '/setup/_trySetup', {
+        DBName: $('input[name="DBName"]').val(),
+        DBUser: $('input[name="DBUser"]').val(),
+        DBPassword: $('input[name="DBPassword"]').val(),
+        AWSKey: $('input[name="AWSKey"]').val(),
+        AWSSecretKey: $('input[name="AWSSecretKey"]').val()
+      }, function(data) {
+        if(data.hasOwnProperty('errorMessage')) {
+          addMessage('danger', data.errorMessage);
+        } else if (data.hasOwnProperty('successMessage')) {
+          addMessage('success', data.successMessage);
+          window.setTimeout(function () {
+            location.href = data.redirect;
+          }, 2000);
+        }
+      });
+      return false;
+    });
+  </script>
+{% endblock %}

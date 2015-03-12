@@ -1,0 +1,17 @@
+  <Question>
+    <QuestionIdentifier>{0}</QuestionIdentifier>
+    <DisplayName>{1}</DisplayName>
+    <IsRequired>true</IsRequired>
+    <QuestionContent>
+      <FormattedContent><![CDATA[{2}]]></FormattedContent>
+    </QuestionContent>
+    <AnswerSpecification>
+      <SelectionAnswer>
+        <StyleSuggestion>radiobutton</StyleSuggestion>
+        <Selections>
+{3}
+        </Selections>
+      </SelectionAnswer>
+    </AnswerSpecification>
+  </Question>
+

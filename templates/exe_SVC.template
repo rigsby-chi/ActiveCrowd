@@ -1,0 +1,74 @@
+import sys
+from sklearn.svm import SVC
+from mturk.MTurkConnector import MTurkConnector
+from mturk.LearningAutomation import LearningAutomation
+from mturk.my_utils import Logger, Recorder
+
+projectName = "{0}"
+propertiesFile = "project/{0}/mturk.properties"
+questionFile = "project/{0}/mturk.question"
+
+#Active learning and MTurk config dict
+activeMTurk = {1}
+
+#SKLearn config dict
+sk = {2}
+
+#Funcitons
+{3}
+
+db = {4}
+
+def execute(useSandbox, stopAtAmount, stopAtErrorRate = None):
+  logger = Logger(projectName, db['db'], db['db_user'], db['db_password'])
+  recorder = Recorder(projectName, db['db'], db['db_user'], db['db_password'])
+  try:
+    logger.log('info', '--------- Execution starts ---------')
+    if not stopAtAmount == 0:
+      recorder.record(recordType='start', useSandbox=int(useSandbox), stopAtErrorRate=stopAtErrorRate, stopAtLabeledSamples=stopAtAmount, sklearnSetting = sk)
+    
+    #Create MTurk Connector instance for MTurk Communication
+    mc = {5}
+    
+    #Create classifier object
+    clf = SVC(C = sk['C'], \
+              kernel = sk['kernel'], \
+              degree = sk['degree'], \
+              gamma = sk['gamma'], \
+              coef0 = sk['coef0'], \
+              shrinking = sk['shrinking'], \
+              probability = sk['probability'], \
+              tol = sk['tol'], \
+              cache_size = sk['cache_size'], \
+              class_weight = sk['class_weight'], \
+              verbose = sk['verbose'], \
+              max_iter = sk['max_iter'], \
+              random_state = sk['random_state'])
+    
+    #Create learning automation layer instance
+    la = learner(project = projectName, \
+                     useDB = True,
+                     db = db['db'],
+                     db_user = db['db_user'],
+                     db_password = db['db_password'],
+                     root_path = 'project', \
+                     clf = clf, \
+                     mc = mc,
+                     logger = logger,
+                     recorder = recorder)
+                    
+    #Start active learning
+    resultClf = {6}
+                        
+    if not stopAtAmount == 0:
+      recorder.record(recordType='finish')
+    logger.log('success', '--------- Execution completed ---------')
+  except Exception, e:
+    traceback.print_exc()
+    recorder.record(recordType='finishWithError')
+    self.logger.log('danger', 'Unexpected Error: ' + e.message)
+    logger.log('info', '--------- Execution terminated with errors ---------')
+  finally:
+    sys.exit()
+
+{7}

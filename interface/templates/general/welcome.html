@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+  <div class="jumbotron">
+    <h1>Welcome!</h1>
+    <p class="lead">This framework is designed to perform automated active learning. It makes use of <a href="http://scikit-learn.org/stable/" target="_blank">scikit-learn</a> and supports auto labeling with the use of <a href="https://www.mturk.com/mturk/welcome" target="_blank">Amazon Mechanical Turk</a>. Simply click the following button to configurate and start using the framework.</p>
+    <div class="action">
+      <a href="{{ url_for('setup.setup') }}"><button type="submit" name="setup" value="setup" class="btn btn-lg btn-primary">Start Setup <span class="glyphicon glyphicon-chevron-right"></span></button></a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+import sys
+from sklearn.tree import DecisionTreeClassifier
+from mturk.MTurkConnector import MTurkConnector
+from mturk.LearningAutomation import LearningAutomation
+from mturk.my_utils import Logger, Recorder
+
+projectName = "{0}"
+propertiesFile = "project/{0}/mturk.properties"
+questionFile = "project/{0}/mturk.question"
+
+#MTurk config dict
+activeMTurk = {1}
+
+#SKLearn config dict
+sk = {2}
+
+#Funcitons
+{3}
+
+db = {4}
+
+def execute(useSandbox, stopAtAmount, stopAtErrorRate = None):
+  logger = Logger(projectName, db['db'], db['db_user'], db['db_password'])
+  recorder = Recorder(projectName, db['db'], db['db_user'], db['db_password'])
+  try:
+    logger.log('info', '--------- Execution starts ---------')
+    if not stopAtAmount == 0:
+      recorder.record(recordType='start', useSandbox=int(useSandbox), stopAtErrorRate=stopAtErrorRate, stopAtLabeledSamples=stopAtAmount, sklearnSetting = sk)
+      
+    #Create MTurk Connector instance for MTurk Communication
+    mc = {5}
+    
+    #Create classifier object
+    clf = DecisionTreeClassifier(criterion = sk['criterion'], \
+              splitter = sk['splitter'], \
+              max_features = sk['max_features'], \
+              max_depth = sk['max_depth'], \
+              min_samples_split = sk['min_samples_split'], \
+              min_samples_leaf = sk['min_samples_leaf'], \
+              max_leaf_nodes = sk['max_leaf_nodes'], \
+              random_state = sk['random_state'])
+    
+    #Create learning automation layer instance
+    la = learner(project = projectName, \
+                     useDB = True,
+                     db = db['db'],
+                     db_user = db['db_user'],
+                     db_password = db['db_password'],
+                     root_path = 'project', \
+                     clf = clf, \
+                     mc = mc,
+                     logger = logger,
+                     recorder = recorder)
+    
+    #Start active learning
+    resultClf = {6}
+    if not stopAtAmount == 0:
+      recorder.record(recordType='finish')
+    logger.log('success', '--------- Execution completed ---------')
+  except Exception, e:
+    traceback.print_exc()
+    recorder.record(recordType='finishWithError')
+    self.logger.log('danger', 'Unexpected Error: ' + e.message)
+    logger.log('info', '--------- Execution terminated with errors ---------')
+  finally:
+    sys.exit()
+
+{7}

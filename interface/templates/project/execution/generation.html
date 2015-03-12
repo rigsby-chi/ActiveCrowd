@@ -1,0 +1,90 @@
+{% extends "project/dashboardLayout.html" %}
+
+{% block page %}Execution{% endblock %}
+
+{% block dashboardContent %}
+<div class="container">
+  <div class="col-md-10">
+    <div id="message"></div>
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><b>Pre-requirements</b></h3>
+      </div>
+      <!-- Table displaying status of required configuration or files -->
+      <div class="panel-body">
+        <div class="table-responsive table-info">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>MTurk Status File</td>
+                <td><span>{{ parameter['MTurk'] }}</span> {{ parameter['MTurkMsg'] }}</td>
+              </tr>
+              <tr>
+                <td>Properties File</td>
+                <td><span>{{ parameter['PFile'] }}</span> {{ parameter['PFileMsg'] }}</td>
+              </tr>
+              <tr>
+                <td>Question File</td>
+                <td><span>{{ parameter['QFile'] }}</span> {{ parameter['QFileMsg'] }}</td>
+              </tr>
+              <tr>
+                <td>SKLearn Setting</td>
+                <td><span>{{ parameter['SKLearn'] }}</span> {{ parameter['SKLearnMsg'] }}</td>
+              </tr>
+              <tr>
+                <td>User-defined Functions</td>
+                <td><span>{{ parameter['Function'] }}</span> {{ parameter['FunctionMsg'] }}</td>
+              </tr>
+              <tr>
+                <td>Executable procedure</td>
+                <td><span>{{ parameter['PYFile'] }}</span> {{ parameter['PYFileMsg'] }}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        {% if not parameter['isReady'] == False %}
+        <form id="generate" method="POST">
+          <div class="action">
+            <button type="submit" value="generate" name="generate" class="btn btn-default">Generate <span class="glyphicon glyphicon-import"</span></button>
+          </div>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+    
+{% block endScript %}
+  {{ super() }}
+  <script type="text/javascript">
+  $('td span').each( function() {
+    if ($(this).text() == 'ok') {
+      $(this).closest('td').css('color', '#3C763D');
+      $(this).addClass('glyphicon glyphicon-ok-sign');
+    } 
+    else if ($(this).text() == 'remove'){
+      $(this).closest('td').css('color', 'red');
+      $(this).addClass('glyphicon glyphicon-remove-sign');
+    } 
+    else if ($(this).text() == 'ban'){
+      $(this).closest('td').css('color', '#FF8C00');
+      $(this).addClass('warning glyphicon glyphicon-ban-sign');
+    } 
+    else if ($(this).text() == 'warning'){
+      $(this).closest('td').css('color', '#EEC900');
+      $(this).addClass('glyphicon glyphicon-warning-sign');
+    }
+    else if ($(this).text() == 'info'){
+      $(this).closest('td').css('color', '#337ab7');
+      $(this).addClass('warning glyphicon glyphicon-info-sign');
+    } 
+    $(this).empty();
+  });
+  </script>
+{% endblock %}

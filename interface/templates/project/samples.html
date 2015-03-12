@@ -1,0 +1,404 @@
+{% extends "project/dashboardLayout.html" %}
+{% block page %}Samples{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <style type="text/css" media="screen">
+    #sampleTable{
+      width: 100%;
+    }
+    
+    tr td:first-child{
+      width:5%;
+      white-space:nowrap;
+    }
+    tr td:nth-child(2){
+      width:25%;
+      word-break: break-all;
+    }
+    tr td:nth-child(3){
+      width:37%;
+      word-break: break-all;
+    }
+    tr td:nth-child(4){
+      width:10%;
+      word-break: break-all;
+    }
+    tr td:nth-child(5){
+      width:12%;
+      word-break: break-all;
+    }
+    tr td:nth-child(6){
+      width:5%;
+      word-break: break-all;
+    }
+    
+    .pagination{
+      margin: 0 0 0 0;
+    }
+    
+    .pagination > li > a{
+      color: black;
+    }
+    
+    #goTo{
+      display: inline-block;
+      width: 85px;
+    }
+    
+    a.morelink {
+        text-decoration:none;
+        outline: none;
+    }
+    .morecontent span {
+        display: none;
+    }
+    .comment {
+        width: 400px;
+        background-color: #f0f0f0;
+        margin: 10px;
+    }
+    
+    .predict {
+      cursor:pointer;
+    }
+    
+    #displayOptions ul.pagination>li>a.selected {
+      background-color: #EEE;
+    }
+    
+  </style>
+{% endblock %}
+
+
+{% block dashboardContent %}
+<div id="displayOptions" class="action">
+  <!-- Page Nav bar -->
+  <ul id="pageNav" class="pagination">
+  </ul>
+  
+  <!-- "Go to page" field -->
+  <div id="goTo">
+    <div class="input-group">
+      <input type="text" name="page" class="form-control">
+      <span class="input-group-btn">
+        <button id="goToPage" class="btn btn-default" type="button">Go</span></button>
+      </span>
+    </div>
+  </div>
+  
+  <!-- Simple filtering options -->
+  <ul class="pagination">
+    <li>
+      <a href="#" id="Labeled" class="selected">Labeled <span class="glyphicon glyphicon-ok"></span></a>
+    </li>
+    <li>
+      <a href="#" id="Unlabeled" class="selected">Unlabeled <span class="glyphicon glyphicon-ok"></span></a>
+    </li>
+  </ul>
+  <ul class="pagination">
+    <li>
+      <a href="#" id="top100">Top 100 Uncertain <span class="glyphicon glyphicon-remove"></span></a>
+    </li>
+  </ul>
+</div>
+
+<!-- Table for displaying samples -->
+<div class="table-responsive">
+  <table id="sampleTable" class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Samples</th>
+        <th>Feafures</th>
+        <th>Label</th>
+        <th>Label Source</th>
+        <th>Is Test Sample</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script type="text/javascript">
+    var page = 1;       //Record the current page number
+    var totalPage = 1;  //Record the amount of total pages
+    
+    $(document).ready(function() 
+    {
+      getSamples();
+    });
+    
+    //Get samples according to requested options and page number
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    function getSamples(){
+      $.getJSON($SCRIPT_ROOT + "/project/{{ parameter['projectName'] }}/_samples", 
+      {
+        page:  page,
+        labeled: labeled,
+        unlabeled: unlabeled,
+        top100: top100
+      }, 
+      function(data) 
+      {
+        if(data.hasOwnProperty('amount')) 
+        {
+          clearSampleTable();                           //Reset table
+          totalPage = data.totalPage;                   //Update totalPage value
+          for(var i = data.amount - 1; i >= 0; i--)     //Add rows for each sample
+          {
+            addSampleRow(data.sample_id[i], data.sample_s[i], data.sample_f[i], data.sample_l[i], data.sample_ls[i], data.sample_c_gp[i]);
+          }
+          setPageNav(totalPage);  //Render Page nav
+          hideTooLong();          //Hide long context
+        }
+        if(data.hasOwnProperty('amount') && data.amount == 0)
+        {
+          //If no sample is found, add empty indicator row
+          $('#sampleTable tbody').append('<tr><td colspan="6"><h3 style="color: grey; text-align: center">Empty</h3></td></tr>')
+        }
+      });
+    }
+    
+    //Go to page event
+    $("body").on('click', '#goToPage', function(e) {
+      if($("input[name='page']").val().match(/^\+?(0|[1-9]\d*)$/)){
+        var temp = parseInt($("input[name='page']").val());
+        if(temp >= 1 && temp <= totalPage){
+          page = temp;
+          getSamples();
+        }
+        else{
+          addMessage('warning', 'Page out of range.');
+        }
+      }
+      else{
+        addMessage('warning', 'Input most be an positive integer.');
+      }
+      $("input[name='page']").val('')
+    });
+    
+    //Page number click event
+    $("body").on('click', '#pageNav >li > a.pageNumber', function(e) {
+      page = parseInt($(e.target).text());
+      getSamples();
+    });
+    
+    //Previous button click event
+    $("body").on('click', '#previous', function(e) {
+      if(page>1){
+        page--;
+        getSamples();
+      }
+    });
+    
+    //Fix hover release
+    $("#displayOptions ul.pagination>li>a").mouseup(function(){
+      $(this).blur();
+    })
+    
+    //Controls for switching labeled samples button
+    var labeled = true;
+    function switchLabeled() {
+      if(labeled){
+        $('#Labeled span').removeClass("glyphicon glyphicon-ok");
+        $('#Labeled span').addClass("glyphicon glyphicon-remove");
+        $('#Labeled').removeClass('selected');
+        labeled = false;
+      }
+      else{
+        $('#Labeled span').removeClass("glyphicon glyphicon-remove");
+        $('#Labeled span').addClass("glyphicon glyphicon-ok");
+        $('#Labeled').addClass('selected');
+        labeled = true;
+      }
+    }
+    
+    //Controls for switching unlabeled samples button
+    var unlabeled = true;
+    function switchUnlabeled(){
+      if(unlabeled){
+        $('#Unlabeled span').removeClass("glyphicon glyphicon-ok");
+        $('#Unlabeled span').addClass("glyphicon glyphicon-remove");
+        $('#Unlabeled').removeClass('selected');
+        unlabeled = false;
+      }
+      else{
+        $('#Unlabeled span').removeClass("glyphicon glyphicon-remove");
+        $('#Unlabeled span').addClass("glyphicon glyphicon-ok");
+        $('#Unlabeled').addClass('selected');
+        unlabeled = true;
+      }
+    }
+    
+    //Controls for switching top 100 uncertain samples button
+    var top100 = false;
+    function switchTop100(){
+      if(top100){
+        top100 = false;
+        $('#top100 span').removeClass("glyphicon glyphicon-ok");
+        $('#top100 span').addClass("glyphicon glyphicon-remove");
+        $('#top100').removeClass('selected');
+        
+      }
+      else{
+        top100 = true;
+        $('#top100 span').removeClass("glyphicon glyphicon-remove");
+        $('#top100 span').addClass("glyphicon glyphicon-ok");
+        $('#top100').addClass('selected');
+      }
+    }
+    
+    //Controls for geting labeled samples   
+    $("body").on('click', '#Labeled', function(e) {
+      switchLabeled();
+      if(!unlabeled && !labeled)
+        switchUnlabeled();
+      getSamples();
+      if(top100)
+        switchTop100();
+    });
+    
+    //Controls for geting unlabeled samples 
+    $("body").on('click', '#Unlabeled', function(e) {
+      switchUnlabeled();
+      if(!unlabeled && !labeled)
+        switchLabeled();
+      getSamples();
+      if(top100)
+        switchTop100();
+    });
+    
+    //Controls for geting top 100 uncertain samples
+    $("body").on('click', '#top100', function(e) {
+      switchTop100();
+      getSamples();
+    });
+    
+    //Control page nav 
+    function setPageNav(tp){
+      totalPage = tp
+      $('#pageNav').empty();
+      //If page number less than 6, display them all
+      if(totalPage > 0 && totalPage < 6){
+        for(var i = 1; i <= totalPage; i++){
+          if(i == page)
+            $('#pageNav').append('<li class="active"><a href="#">' + i + '</a></li>');
+          else
+            $('#pageNav').append('<li><a class="pageNumber" href="#">' + i + '</a></li>');
+        }
+      }
+      //If page number more than 6
+      else if (totalPage >= 6){
+        //Append current page
+        $('#pageNav').append('<li class="active"><a href="#">' + page + '</a></li>');
+        
+        //Render link for pages before current page
+        if (page<=3){
+          for(var i = page-1; i > 0; i--) 
+            $('#pageNav').prepend('<li><a class="pageNumber" href="#">' + i + '</a></li>');
+        } else if(page > 3 && totalPage - page > 3){
+          $('#pageNav').prepend('<li><a class="pageNumber" href="#">' + (page-1) + '</a></li>');
+          $('#pageNav').prepend('<li><a href="#">...</a></li>');
+          $('#pageNav').prepend('<li><a class="pageNumber" href="#">1</a></li>');
+        } else if(totalPage - page <= 3){
+          $('#pageNav').prepend('<li><a class="pageNumber" href="#">' + (page-1) + '</a></li>');
+          $('#pageNav').prepend('<li><a href="#">...</a></li>');
+          $('#pageNav').prepend('<li><a class="pageNumber" href="#">1</a></li>');
+        }
+        
+        //Render link for pages after current page
+        if(totalPage - page < 3){
+          for(var i = page+1; i <= totalPage; i++) 
+            $('#pageNav').append('<li><a class="pageNumber" href="#">' + i + '</a></li>');
+        } else if(totalPage - page >= 3){
+          $('#pageNav').append('<li><a class="pageNumber" href="#">' + (page+1) + '</a></li>');
+          $('#pageNav').append('<li><a class="pageNumber" href="#">' + (page+2) + '</a></li>');
+          $('#pageNav').append('<li><a href="#">...</a></li>');
+          $('#pageNav').append('<li><a class="pageNumber" href="#">' + totalPage + '</a></li>');
+        } 
+      }
+      
+      //Add next and previous buttons
+      $('#pageNav').prepend('<li><a href="#" id="previous"><span aria-hidden="true">&laquo;</span></a></li>');
+      $('#pageNav').append('<li><a href="#" id="next"><span aria-hidden="true">&raquo;</span></a></li>');
+    }
+    
+    //Reset table
+    function clearSampleTable(){
+      $('#sampleTable tbody').empty();
+    }
+    
+    //Add a row for a sample
+    function addSampleRow(id, s, f, l, ls, c_gp){
+      var row = '<tr>';
+      row += '<td id="' + id + '">' + id + '</td>';
+      if(s.match("^http") && (s.match(".png$") || s.match(".jpg$")))
+        row += '<td class="more">' + s + '<br><img width="180" height="180" src="' + s + '"><img><br></td>';
+      else
+        row += '<td class="more">' + s + '</td>';
+      row += '<td class="more">' + f + '</td>';
+      if(l == null)
+        row += '<td>' + l + ' <span class="p_result text-info"></br><a class="predict" data="' + id + '">(predict)</a></span></td>';
+      else
+        row += '<td>' + l + '</td>';
+      row += '<td>' + ls + '</td>';
+      row += '<td>' + c_gp + '</td>';
+      row += '</tr>';
+      $('#sampleTable tbody').prepend(row);
+    }
+    
+    //Make prediction on unlabeled samples
+    $("body").on('click', 'a.predict', function(e) {
+      $.getJSON($SCRIPT_ROOT + "/project/{{ parameter['projectName'] }}/_predict", 
+      {
+        sampleId:  $(this).attr('data')
+      }, 
+      function(data) 
+      { 
+        $('#' + data.sampleId).closest('tr').find('span.p_result').empty();
+        $('#' + data.sampleId).closest('tr').find('span.p_result').append('<br>' + data.h[0] + ' (' + data.h[1] + '%)');
+        $('#' + data.sampleId).closest('tr').find('span.p_result').append('<br>' + data.s[0] + ' (' + data.s[1] + '%)');
+      });
+    });
+    
+    //Hide contexts if they are too long
+    function hideTooLong(){
+      var showChar = 50;
+      var ellipsestext = "...";
+      var moretext = "more";
+      var lesstext = "less";
+      $('.more').each(function() {
+          var content = $(this).html();
+   
+          if(content.length > showChar) {
+   
+              var c = content.substr(0, showChar);
+              var h = content.substr(showChar, content.length - showChar);
+   
+              var html = c + '<span class="moreellipses">';
+              html += ellipsestext+ ' </span><span class="morecontent"><span>';
+              html += h + '</span>  <a href="" class="morelink">' + moretext + '</a></span>';
+              $(this).html(html);
+          }
+   
+      });
+   
+      $(".morelink").click(function(){
+          if($(this).hasClass("less")) {
+              $(this).removeClass("less");
+              $(this).html(moretext);
+          } else {
+              $(this).addClass("less");
+              $(this).html(lesstext);
+          }
+          $(this).parent().prev().toggle();
+          $(this).prev().toggle();
+          return false;
+      });
+    }
+  </script>
+{% endblock %}

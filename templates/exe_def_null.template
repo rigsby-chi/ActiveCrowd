@@ -1,0 +1,8 @@
+class learner(LearningAutomation):  
+  def sample2Info(self, sample, feature):
+    #Please put your code here
+    return None
+  
+  def answer2Label(self, answer):
+    #Please put your code here
+    return None

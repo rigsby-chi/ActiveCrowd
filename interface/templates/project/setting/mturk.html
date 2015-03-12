@@ -1,0 +1,547 @@
+{% extends "project/dashboardLayout.html" %}
+
+{% block head %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
+{% block page %}Active Learning and MTurk Setting{% endblock %}
+
+{% block dashboardContent %}
+<div class="container">
+  <div class="col-sm-10">
+    <div id="message"></div>
+    <form role="form" enctype="multipart/form-data" id="mturk" method="POST">
+      <!-- First part: basic setting -->
+      <fieldset id="part1">
+        <legend>Basic Setting</legend>
+        <div class="action">
+          <label>
+            <input type="checkbox" id="useMTurk" name="useMTurk" value="useMTurk" {{ parameter['isChecked'] }}>
+            Use MTurk for labeling
+          </label>
+        </div>
+        <br />
+        <div class="row required">
+          <label class="control-label">AWS Access Key: </label>
+          <div class="inputField">
+            <input type="text" name="AWSKey" class="form-control" maxlength="50" value="{{ parameter['AWSKey'] }}"/>
+            <span class="glyphicon glyphicon-question-sign" 
+                  aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                  title="Captured form Amazon website for identifying your MTurk account"></span>
+          </div>
+        </div>
+        
+        <div class="row required">
+          <label class="control-label">AWS Secret Key: </label>
+          <div class="inputField">
+            <input type="password" class="form-control" name="AWSSecretKey" value="{{ parameter['AWSSecretKey'] }}"/>
+            <span class="glyphicon glyphicon-question-sign" 
+                  aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                  title="Captured form Amazon website for verifying your MTurk account"></span>
+          </div>
+        </div>
+        
+        <br />
+        
+        <div class="row required">
+          <label class="control-label">Samples per HIT: </label>
+          <div class="inputField">
+            <input type="number" class="form-control" name="samplesPerHIT" min="1" value="{% if 'NumberOfQuestion' in parameter %}{{ parameter['NumberOfQuestion'] }}{% else %}5{% endif %}" />
+            <span class="glyphicon glyphicon-question-sign" 
+                  aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                  title="Number of samples to be labeled in each HIT (Human Intelligence Task)"></span>
+          </div>
+        </div>
+        
+        <div class="row required">
+          <label class="control-label">HITs per iteration: </label>
+          <div class="inputField">
+            <input type="number" class="form-control" name="HITsPerIteration" min="1" value="{% if 'HITsPerIteration' in parameter %}{{ parameter['HITsPerIteration'] }}{% else %}5{% endif %}" />
+            <span class="glyphicon glyphicon-question-sign" 
+                  aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                  title="Number of HITs to be created in each iteration"></span>
+          </div>
+        </div>
+        
+        <div class="row required">
+          <label class="control-label">Threshold: </label>
+          <div class="inputField">
+            <input type="number" class="form-control" name="threshold" min="0" value="{% if 'threshold' in parameter %}{{ parameter['threshold'] }}{% else %}2{% endif %}" />
+            <span class="glyphicon glyphicon-question-sign" 
+                  aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                  title="Create new HITs when number of HITs pending for answer lower than this value"></span>
+          </div>
+        </div>
+        
+        <div class="row required">
+          <label class="control-label">Interval (second): </label>
+          <div class="inputField">
+            <input type="number" class="form-control" name="intervalInSecond" min="10" value="{% if 'intervalInSecond' in parameter %}{{ parameter['intervalInSecond'] }}{% else %}60{% endif %}" />
+            <span class="glyphicon glyphicon-question-sign" 
+                  aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                  title="Time interval (in second) between each communication to MTurk server (checking HIT states, retrieving results, creating new HITs, etc.)"></span>
+          </div>
+        </div>
+        
+        <!-- Advanced Option Enable/Disable-->
+        <div class="action">
+          <label class="control-label">
+            <input id="useAdvanced" name="advanced" type="checkbox" />
+            Advanced Options
+            <span class="glyphicon glyphicon-question-sign" 
+                aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                title="Input parameter name and value by yourselves"></span>
+          </label>
+        </div>
+        
+        <!-- Advanced Option -->
+        <div id="advancedOption" class="hidden">
+          </br>
+          <div class="row required">
+            <label class="control-label">Enlarge sampling range: </label>
+            <div class="inputField">
+              <input type="number" class="form-control" name="enlargeSamplingRange" min="0" value="{% if 'enlargeSamplingRange' in parameter %}{{ parameter['enlargeSamplingRange'] }}{% else %}40{% endif %}" />
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Pick high entroy samples in an enlarged range to avoid very similar samples being selected."></span>
+            </div>
+          </div>
+          
+          <div class="row required">
+            <label class="control-label">Control Group Radio (%): </label>
+            <div class="inputField">
+              <input type="number" class="form-control" name="controlGroupRadio" min="0" value="{% if 'controlGroupRadio' in parameter %}{{ parameter['controlGroupRadio'] }}{% else %}50{% endif %}" />
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Specify the proportion of training samples and testing samples (control group). The higher this proportion is, the more accurate the classfication accuracy evaluation but with more overheads."></span>
+            </div>
+          </div>
+        </div>
+        
+      </fieldset>
+    
+      <!-- Second part: properties files -->
+      <fieldset id="part2">
+        <legend>HIT Properties</legend>
+        
+        <!-- Controls for uploading an file or building a new file -->
+        <div class="radio-selection">
+          <label class="radio-inline"><input type="radio" class="displayOption" name="UorBPFile" value="option1">Upload a properties file</label>
+          <label class="radio-inline"><input type="radio" class="displayOption" name="UorBPFile" value="option2" checked>Build a new Properties File</label>
+        </div>
+        
+        <br /><br />
+        
+        <!-- block for uploading a existing file -->
+        <div class="option option1">
+          <div class="row required">
+            <label class="control-label">Properties file: </label>
+            <div class="inputField">
+              <div class="block">
+                <div class="input-group">
+                  <input name="p_path" type="text" class="form-control" readonly>
+                  <span class="input-group-btn">
+                    <span class="btn btn-default btn-file">Browse<input name="PFile" type="file"></span>
+                  </span>
+                </div>
+              </div>
+              <span class="glyphicon glyphicon-question-sign" 
+                  aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                  title="A text file defining the properties of the HITs to be created."></span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- block for building a new file -->
+        <div class="option option2">
+          <div class="row required">
+            <label class="control-label">HIT Title: </label>
+            <div class="inputField">
+              <input type="text" name="HITTitle" class="form-control" value="{{ parameter['HITTitle'] }}"/>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines the title of the HIT"></span>
+            </div>
+          </div>
+            
+          <div class="row required">
+            <label class="control-label">HIT Description: </label>
+            <div class="inputField">
+              <input type="text" name="HITDescription" class="form-control" value="{{ parameter['HITDescription'] }}"/>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines the description of the HIT"></span>
+            </div>
+          </div>
+            
+          <div class="row required">
+            <label class="control-label">Keywords: </label>
+            <div class="inputField">
+              <input type="text" name="HITKeywords" class="form-control" value="{{ parameter['HITKeywords'] }}"/>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines the key words to associate with the HIT"></span>
+            </div>
+          </div>
+            
+          <div class="row required">
+            <label class="control-label">Annotation: </label>
+            <div class="inputField">
+              <input type="text" name="HITAnnotation" class="form-control" value="{{ parameter['HITAnnotation'] }}"/>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines a value that you can use to uniquely identify this HIT from the others"></span>
+            </div>
+          </div>
+            
+          <div class="row required">
+            <label class="control-label">Reward (USD): </label>
+            <div class="inputField">
+              <input type="number" class="form-control" name="HITReward" min="0.00" value="{% if 'HITReward' in parameter %}{{ parameter['HITReward'] }}{% else %}0.05{% endif %}" step="0.01" />
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines the reward for the HIT in $0.00 USD"></span>
+            </div>
+          </div>
+            
+          <div class="row required">
+            <label class="control-label">Assignments: </label>
+            <div class="inputField">
+              <input type="number" class="form-control" name="HITAssignments" value="1" readonly />
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines the maximum number of assignments to make available for this HIT">
+              </span>
+            </div>
+          </div>
+          
+          <div class="row required">
+            <label class="control-label">Duration (second): </label>
+            <div class="inputField">
+              <input type="number" class="form-control" name="HITDuration" min="60" value="{% if 'HITDuration' in parameter %}{{ parameter['HITDuration'] }}{% else %}120{% endif %}" />
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines how much time a worker has to complete the assignment"></span>
+            </div>
+          </div>
+            
+          <div class="row required">
+            <label class="control-label">HIT Lifetime (second): </label>
+            <div class="inputField">
+              <input type="number" class="form-control" name="HITLifetime" min="120" value="{% if 'HITLifetime' in parameter %}{{ parameter['HITLifetime'] }}{% else %}86400{% endif %}" />
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines how long the HIT will be active before it expires"></span>
+            </div>
+          </div>
+          
+          <div class="row required">
+            <label class="control-label">Approval Delay (second): </label>
+            <div class="inputField">
+              <input type="number" class="form-control" name="HITApprovalDelay" min="3600" value="{% if 'HITApprovalDelay' in parameter %}{{ parameter['HITApprovalDelay'] }}{% else %}86400{% endif %}" />
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Parameter defines how much time will pass before a submitted assignment is automatically approved"></span>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      
+      <!-- Third part: question file: -->
+      <fieldset id="part3">
+        <legend>HIT Question</legend>
+        
+        <!-- Controls for uploading an existing file or building a new file -->
+        <div class="radio-selection">
+          <label class="radio-inline"><input type="radio" class="displayOption" name="UorBQFile" value="option1">Upload a Question file</label>
+          <label class="radio-inline"><input type="radio" class="displayOption" name="UorBQFile" value="option2" checked>Build a new Question File</label>
+        </div>
+        
+        <br /><br />
+        
+        <!-- Block for uploading an existing file -->
+        <div class="option option1">
+          <div class="row required">
+            <label class="control-label">Question file: </label>
+            <div class="inputField">
+              <div class="block">
+                <div class="input-group">
+                  <input name="q_path" type="text" class="form-control" readonly>
+                  <span class="input-group-btn">
+                      <span class="btn btn-default btn-file">Browse<input name="QFile" type="file"></span>
+                  </span>
+                </div>
+              </div>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Location of the question file"></span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Block for building a new file -->
+        <div class="option option2">
+          <div class="row required">
+            <label class="control-label">Number of Question: </label>
+            <div class="inputField">
+              <input type="number" class="form-control" name="NumberOfQuestion" value="{% if parameter['NumberOfQuestion'] %}{{ parameter['NumberOfQuestion'] }}{% else %}5{% endif %}" readonly/>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Number of samples to be labeled in each HIT (Human Intelligence Task)"></span>
+            </div>
+          </div>
+        
+          <div class="row required">
+            <label class="control-label">Question Title: </label>
+            <div class="inputField">
+              <input type="text" name="QuestionTitle" class="form-control" value="{{ parameter['QuestionTitle'] }}"/>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="A string to be rendered as a title or heading."></span>
+            </div>
+          </div>
+        
+          <div class="row required">
+            <label class="control-label">Question Overview: </label>
+            <div class="inputField">
+              <textarea name="QuestionOverview" class="form-control" form="mturk">{{ parameter['QuestionOverview'] }}</textarea>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Instructions and information to be presented separately from the set of questions"></span>
+            </div>
+          </div>
+          
+          <div class="row required">
+            <label class="control-label">Display Name: </label>
+            <div class="inputField">
+              <input type="text" name="DisplayName" class="form-control" value="{{ parameter['DisplayName'] }}"/>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="A name for the question, displayed as a prominent heading"></span>
+            </div>
+          </div>
+          
+          <div class="row required">
+            <label class="control-label">Question Text Content: </label>
+            <div class="inputField">
+              <textarea name="QuestionContent" class="form-control" form="mturk">{{ parameter['QuestionContent'] }}</textarea>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="The instructions and data specific to this question, such as the text of the question"></span>
+            </div>
+          </div>
+          
+          <div class="row">
+            <label class="control-label required">Answer Type: </label>
+            <div class="inputField">
+              <select id="AnswerType" class="selectpicker" data-width="65%" name="AnswerType">
+                <option value="FreeText" {% if parameter['AnswerType'] == 'FreeText' %}selected{% endif %}>Free Text Answer</option>
+                <option value="FreeTextRegex" {% if parameter['AnswerType'] == 'FreeTextRegex' %}selected{% endif %}>Free Text Answer with Regex</option>
+                <option value="Numeric" {% if parameter['AnswerType'] == 'Numeric' %}selected{% endif %}>Numeric Answer</option>
+                <option value="Selection" {% if parameter['AnswerType'] == 'Selection' %}selected{% endif %}>Selection Answer</option>
+              </select>
+              <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="Describes the format and possible values for answers to a question"></span>
+            </div>
+          </div>
+          
+          <div id="SelectionBlock" class="answer-detail jumbotron">
+            <!-- Block for adding new selections -->
+            <div class="action">
+              <label>
+                <div class="input-group">
+                  <input id="newSelection" type="text" class="form-control" placeholder="Selection Display Text">
+                  <span class="input-group-btn">
+                    <button id="addSelection" class="btn btn-default" type="button">Add</button>
+                  </span>
+                </div>
+              </label>
+            </div>
+            <br />
+            <!-- Block for display added selections -->
+            <div id="AnswerSelection">
+            </div>
+          </div>
+          
+          <!-- Regex field for free text with regex answer -->
+          <div id="FreeTextRegex" class="answer-detail">
+            <div class="row required" >
+              <label class="control-label">Regex: </label>
+              <div class="inputField">
+                <input type="text" name="FreeTextRegex" class="form-control" value="{% if parameter['FreeTextRegex'] %}{{ parameter['FreeTextRegex'] }}{% endif %}"/>
+                <span class="glyphicon glyphicon-question-sign" 
+                      aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                      title="A string that specifies the regular expression that JavaScript uses to validate against the Workers' entered values"></span>
+              </div>
+            </div>
+            
+            <!-- Error message field for free text with regex answer -->
+            <div class="row required" >
+              <label class="control-label">Error message: </label>
+              <div class="inputField">
+                <input type="text" name="ErrorMessage" class="form-control" value="{% if parameter['ErrorMessage'] %}{{ parameter['ErrorMessage'] }}{% endif %}"/>
+                <span class="glyphicon glyphicon-question-sign" 
+                      aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                      title="A message displayed to the Worker on the Worker web site if the regex validation fails"></span>
+              </div>
+            </div>
+          </div>
+          
+          <div id="Numeric" class="answer-detail">
+            <!-- Min field for numeric answer -->
+            <div class="row" >
+              <label class="control-label">Min: </label>
+              <div class="inputField">
+                <input type="number" name="minValue" class="form-control" step="1" value="{% if 'minValue' in parameter %}{{ parameter['minValue'] }}{% endif %}"/>
+                <span class="glyphicon glyphicon-question-sign" 
+                      aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                      title="Minimum value that users are allowed to input"></span>
+              </div>
+            </div>
+            
+            <!-- Max field for numeric answer -->
+            <div class="row" >
+              <label class="control-label">Max: </label>
+              <div class="inputField">
+                <input type="number" name="maxValue" class="form-control" step="1" value="{% if 'maxValue' in parameter %}{{ parameter['maxValue'] }}{% endif %}"/>
+                <span class="glyphicon glyphicon-question-sign" 
+                      aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                      title="Maximum value that users are allowed to input"></span>
+              </div>
+            </div>
+          </div>
+        
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script type="text/javascript">
+    //Controls for whether to enable MTurk
+    function useMTurk(){
+      if($("#useMTurk").prop("checked")) {
+        $("#part1 input").not("#useMTurk").prop('disabled', false);
+        $("#part1 div.row").addClass('required');
+        $("#part1 button[name='save']").attr('type', 'button');
+        $("#part1 button[name='save']").empty();
+        $("#part1 button[name='save']").append('Next <span class="glyphicon glyphicon-chevron-right">');
+        $("#part1 button[name='save']").attr('name', 'next');
+      }
+      else {
+        $("#part1 input").not("#useMTurk").prop('disabled', true);
+        $("#part1 div.required").removeClass('has-error');
+        $("#part1 div.row").removeClass('required');
+        $("#part1 button[name='next']").attr('type', 'submit');
+        $("#part1 button[name='next']").empty();
+        $("#part1 button[name='next']").append('Save <span class="glyphicon glyphicon-save"></span>');
+        $("#part1 button[name='next']").attr('name', 'save');
+      }
+    }
+    
+    var amountS = 0;  //Counter for the number of selections added
+    
+    //Controls for adding selection answer's selections
+    function addSelection(name, value){
+      var newS = "";
+      //Add a label-inputField pair for a new selection
+      newS += "<div class='row required'>";
+      newS += "<label class='control-label col-md-3'>" + name + ": " + "</label>";
+      newS += "<input type='text' placeholder='Selection Return Value' name='sel_" + amountS + "' ";
+      if(value != null){
+        newS += "value='" + value + "' ";
+      }
+      newS += "class='form-control col-md-8'>";
+      newS += "</div>";
+      $('#AnswerSelection').append(newS);
+      
+      //Add a hidden field for storing selection name
+      var newSName = "";
+      newSName += "<input type='hidden' name='seln_" + amountS + "' value='";
+      newSName += name + "'>";
+      $('#AnswerSelection').append(newSName);
+      
+      $("#newSelection").val('');
+      amountS++;
+    }
+    
+    $("#addSelection").click(function(e) {
+      if( $("#newSelection").val()) {
+        addSelection($("#newSelection").val(), null)
+      }
+    });
+    
+    //Fields control when changing answer type
+    function answerDetail(){
+      $('.answer-detail').hide();
+      $('#FreeTextRegex').addClass('hidden');
+      amountS = 0;
+      $('#AnswerSelection').empty(); //Clear selections
+      
+      var optionSelected = $("#AnswerType option:selected");
+      
+      if($(optionSelected).val() == 'FreeTextRegex'){
+        $('#FreeTextRegex').show();
+        $('#FreeTextRegex').removeClass('hidden');
+        $('#FreeTextRegex').removeClass('has-error');
+      }
+      else if($(optionSelected).val() == 'Selection'){
+        $("#newSelection").val('');
+        $('#SelectionBlock').show();
+      }
+      else if($(optionSelected).val() == 'Numeric'){
+        $('#Numeric').show();
+      }
+    }
+    
+    $("body").on('change', "#AnswerType", function(e) {
+      answerDetail()
+    });
+    
+    $("body").on('click', "#useMTurk", function(e) {
+      useMTurk();
+    });
+    
+    $("body").on('change', "input[name='samplesPerHIT']", function(e) {
+      $('input[name="NumberOfQuestion"]').val($('input[name="samplesPerHIT"]').val());
+    });
+    
+    //Advanced option controls
+    $("#useAdvanced").click(function(e) {
+      if($("#useAdvanced").prop("checked")) {
+        $("#advancedOption").removeClass("hidden");
+        $("#advancedOption").show();
+      }
+      else {
+        $("#advancedOption").hide();
+        $("#newParameter").addClass("hidden");
+      }
+    });
+    
+    $(document).ready(function() {
+      useMTurk();
+      answerDetail();
+      {% if parameter['AnswerType'] == 'Selection' %}
+      //Old setting contains selection answer. Add them to the page.
+      {% if parameter['Selections'] %}
+      {% for Text, Value in parameter['Selections'] %}
+      addSelection('{{ Text }}', '{{ Value }}');
+      {% endfor %}
+      {% endif %}
+      {% endif %}
+      
+      {% if parameter['inExecution'] == 'training' %}
+      //Application is in execution. No modification on MTurk setting is allowed.
+      disableAllFields();
+      addMessage('warning', 'Training process is in execution. You are not allowed to edit the setting in this moment.');
+      {% endif %}
+    });
+    
+  </script>
+{% endblock %}

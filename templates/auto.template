@@ -1,0 +1,10 @@
+la.auto(hits_for_init = activeMTurk['HITsPerIteration']*2, \
+                        hits_per_iter = activeMTurk['HITsPerIteration'], \
+                        samples_per_hit = activeMTurk['samplesPerHIT'], \
+                        threshold = activeMTurk['threshold'], \
+                        pending = activeMTurk['intervalInSecond'], \
+                        enlargeSamplingRange = activeMTurk['enlargeSamplingRange'], \
+                        controlGroupRadio = activeMTurk['controlGroupRadio'], \
+                        stopAtErrorRate = stopAtErrorRate, \
+                        stopAtAmount = stopAtAmount, \
+                        need_init = True)

@@ -1,0 +1,118 @@
+{% extends "project/dashboardLayout.html" %}
+
+{% block dashboardContent %}
+<div class='col-sm-10'>
+<h3>Project information</h2>
+  <!-- Basic project info -->
+  <div class="table-responsive table-info">
+    <table class="table">
+      <tbody>
+        <tr>
+          <td>Project Name</td>
+          <td>{{ parameter['projectName'] }}</td>
+        </tr>
+        <tr>
+          <td>Project Description</td>
+          <td>{{ parameter['projectDescription'] }}</td>
+        </tr>
+        <tr>
+          <td>Use MTurk</td>
+          <td><span>{{ parameter['MTurk'] }}</span> {{ parameter['MTurkMsg'] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- File and configuration existance -->
+  <h3>Status</h2>
+  <div class="table-responsive table-info">
+    <table class="table">
+      <tbody>
+        <tr>
+          <td>Properties File</td>
+          <td><span>{{ parameter['PFile'] }}</span> {{ parameter['PFileMsg'] }}</td>
+        </tr>
+        <tr>
+          <td>Question File</td>
+          <td><span>{{ parameter['QFile'] }}</span> {{ parameter['QFileMsg'] }}</td>
+        </tr>
+        <tr>
+          <td>SKLearn Setting</td>
+          <td><span>{{ parameter['SKLearn'] }}</span> {{ parameter['SKLearnMsg'] }}</td>
+        </tr>
+        <tr>
+          <td>User-defined Functions</td>
+          <td><span>{{ parameter['Function'] }}</span> {{ parameter['FunctionMsg'] }}</td>
+        </tr>
+        <tr>
+          <td>Executable procedure</td>
+          <td><span>{{ parameter['PYFile'] }}</span> {{ parameter['PYFileMsg'] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- MTurk configuration -->
+  <h3>MTurk setting</h2>
+  <div class="table-responsive table-info">
+    <table class="table">
+      <tbody>
+        <tr>
+          <td>AWS Key</td>
+          <td>{{ parameter['AWSKey'] }}</td>
+        </tr>
+        <tr>
+          <td>AWS Secret Key</td>
+          <td>{{ parameter['AWSSecretKey'] }}</td>
+        </tr>
+        <tr>
+          <td>Samples per HIT</td>
+          <td>{{ parameter['samplesPerHIT'] }}</td>
+        </tr>
+        <tr>
+          <td>HITs per iteration</td>
+          <td>{{ parameter['HITsPerIteration'] }}</td>
+        </tr>
+        <tr>
+          <td>Threshold</td>
+          <td>{{ parameter['threshold'] }}</td>
+        </tr>
+        <tr>
+          <td>Interval in second</td>
+          <td>{{ parameter['intervalInSecond'] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script type="text/javascript">
+    //Add icon and text color setting according to cell content
+    $('td span').each( function() {
+      if ($(this).text() == 'ok') {
+        $(this).closest('td').css('color', '#3C763D');
+        $(this).addClass('glyphicon glyphicon-ok-sign');
+      } 
+      else if ($(this).text() == 'remove'){
+        $(this).closest('td').css('color', 'red');
+        $(this).addClass('glyphicon glyphicon-remove-sign');
+      } 
+      else if ($(this).text() == 'ban'){
+        $(this).closest('td').css('color', '#FF8C00');
+        $(this).addClass('warning glyphicon glyphicon-ban-sign');
+      } 
+      else if ($(this).text() == 'warning'){
+        $(this).closest('td').css('color', '#EEC900');
+        $(this).addClass('glyphicon glyphicon-warning-sign');
+      }
+      else if ($(this).text() == 'info'){
+        $(this).closest('td').css('color', '#337ab7');
+        $(this).addClass('warning glyphicon glyphicon-info-sign');
+      } 
+      $(this).empty();
+    });
+  </script>
+{% endblock %}

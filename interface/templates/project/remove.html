@@ -1,0 +1,126 @@
+{% extends "project/dashboardLayout.html" %}
+
+{% block page %}Remove{% endblock %}
+
+{% block dashboardContent %}
+<div class="row">
+  <!-- block for removing labels -->
+  <div class="remove-mode col-md-4">
+    <h2>Remove labels</h2>
+    <div class="remove-mode-content">
+      <p>Remove all labels for this project including labels which are obtained from MTurk service or by other means. All samples of this project will be returned to unlabeled sample pool. This action is suggested if you want to rebuild a learning model with same set of samples.</p>
+      <div class="col-md-9">
+        <ul class="text-warning">
+          <li>Learning model will be removed</li>
+          <li>Record on MTurk service will remain</li>
+          <li>Action cannot be reversed</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <button id="remove-labels" class="btn btn-lg btn-default" data-toggle="modal" data-target="#confirmation"><span class="glyphicon glyphicon-trash"></span></button>
+    </div>
+  </div>
+
+  <!-- block for removing samples -->
+  <div class="remove-mode col-md-4">
+    <h2>Remove samples</h2>
+    <div class="remove-mode-content">
+      <p>Remove all samples stored for this project. Relative labels and the learning model will also be removed. This action is suggested if you want to keep project setting but rebuild a learning model with different set of samples.</p>
+      <div class="col-md-9">
+        <ul class="text-warning">
+          <li>Learning model will be removed</li>
+          <li>Record on MTurk service will remain</li>
+          <li>Action cannot be reversed</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <button id="remove-samples" class="btn btn-lg btn-default" data-toggle="modal" data-target="#confirmation"><span class="glyphicon glyphicon-trash"></span></button>
+    </div>
+  </div>
+
+  <!-- block for removing MTurk HITs -->
+  <div class="remove-mode col-md-4">
+    <h2>Remove HITs</h2>
+    <div class="remove-mode-content">
+      <p>Remove all HITs in the MTurk account for this project. All pending HITs in that account will be forced to close and remove. HITs waits for approval will be approved and payment will be maded automatically.</p>
+      <div class="col-md-9">
+        <ul class="text-warning">
+          <li>Payment will be made</li>
+          <li>Action cannot be reversed</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <button id="remove-HITs" class="btn btn-lg btn-default" data-toggle="modal" data-target="#confirmation" {% if not parameter['MTurk'] == 'ok' or not parameter['PYFile'] == 'ok'%}disabled{% endif %}><span class="glyphicon glyphicon-trash"></span></button>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- block for removing this project -->
+  <div class="remove-mode col-md-4">
+    <h2>Remove project</h2>
+    <div class="remove-mode-content">
+      <p>Remove this project from the system. All samples, labels, execution logs, local mturk records and the learning model will be removed. It is suggested of a project's life cycle meet its end and no longer needed.</p>
+      <div class="col-md-9">
+        <ul class="text-warning">
+          <li>Learning model will be removed</li>
+          <li>Record on MTurk service will remain</li>
+          <li>Action cannot be reversed</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <button id="remove-project" class="btn btn-lg btn-default" data-toggle="modal" data-target="#confirmation"><span class="glyphicon glyphicon-trash"></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Pop up module for action confirmation -->
+<div id="confirmation" class="modal fade">
+	<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
+        <h3>Are you sure?</h3>
+      </div>
+      <div class="modal-body">
+        <div id="modal-body-des" class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <strong>Do you want to continue the action?</strong>
+        <form method='POST'>
+          <input id="selected-remove-mode" name="selected-remove-mode" type="hidden"/>
+          <input id="confirm-yes" type="submit" class="btn btn-link" value="Yes">
+          <input aria-hidden="true" type="button" data-dismiss="modal" class="btn btn-link" value="No">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script type="text/javascript">
+    
+    $("body").on('click', '.remove-mode button[data-target="#confirmation"]', function(e) {
+      $('#confirmation #modal-body-des').empty();
+      $(this).closest('.remove-mode').children('.remove-mode-content').clone().appendTo('#confirmation #modal-body-des');
+      $('#confirmation #selected-remove-mode').val($(this).attr('id'))
+    });
+    
+    $(document).ready(function() {
+      {% if parameter['inExecution'] == 'training' %}
+      //Application is in execution. No remove operation is allowed
+      $('button').prop('disabled', true);
+      addMessage('warning', 'Training process is running. You are not allowed to perform any removal operation.');
+      {% elif parameter['inExecution'] == 'clearingMTurk' %}
+      //Operation of clearing MTurk is running.
+      addMessage('info', 'System is clearing MTurk account');
+      {% endif %}
+    });
+  </script>
+{% endblock %}

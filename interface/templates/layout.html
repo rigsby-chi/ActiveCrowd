@@ -1,0 +1,85 @@
+<!doctype html>
+  {% block head %}
+  <head>
+    <meta charset=utf-8>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel=stylesheet type=text/css href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-select.min.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/content.css') }}">
+    <title>{% block title %}Welcome{% endblock %} - Here is a python-based machine learning framework</title>
+  </head>
+  {% endblock %}
+  
+  <body>
+    {% block navbar %}
+    <nav class="navbar navbar-inverse navbar-fixed-top" id='topNav'>
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{ url_for('general.home') }}">ActiveCrowd Framework</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li id="nav-home">
+              <a href="{{ url_for('general.home') }}">
+                <span class="glyphicon glyphicon-home"></span> Home
+              </a>
+            </li>
+            
+            {% if not needSetup %}
+            <li id="nav-project" class="dropdown">
+              <a href="project" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">
+                <span class="glyphicon glyphicon-tasks"></span> Project<span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="{{ url_for('project.createProject') }}">Create new project</a></li>
+                <li><a href="#">Import project</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Project dashboard</li>
+                {% with projectList = getProjectList() %}
+                {% if projectList %}
+                {% for project in projectList %}
+                <li><a href="{{ url_for('project.overview', projectName=project) }}">{{ project }}</a></li>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+              </ul>
+            </li>
+            <li id="nav-conf"><a href="{{ url_for('configuration.conf') }}"><span class="glyphicon glyphicon-cog"></span> Configuration</a></li>
+            {% endif %}
+            
+            <li id="nav-about"><a href="{{ url_for('general.about') }}"><span class="glyphicon glyphicon-info-sign"></span> About</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+    {% endblock %}
+  
+    {% block content %}{% endblock %}
+    
+    {% block endScript %}
+    <!-- CSS related -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/message.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-select.min.js') }}"></script>
+    
+    <!-- Navbar active control-->
+    <script type="text/javascript">
+      $('.selectpicker').selectpicker();
+      
+      $(function () { $("[data-toggle='tooltip']").tooltip(); });
+      
+      $('ul.nav > li > a[href="' + (((document.location.pathname).indexOf("project") >= 0)?
+        'project':document.location.pathname)  + '"]').parent().addClass('active');
+    </script>
+    {% endblock %}
+    
+  </body>

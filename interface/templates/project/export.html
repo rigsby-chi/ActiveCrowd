@@ -1,0 +1,204 @@
+{% extends "project/dashboardLayout.html" %}
+{% block page %}Export{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <style type="text/css" media="screen">
+    
+    #importExampleEditor { 
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 100px;
+        border-radius: 10px;
+    }
+    
+    .export {
+      padding-top: 5px;
+      text-align:center;
+    }
+  </style>
+{% endblock %}
+
+
+{% block dashboardContent %}
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+  <!-- Panel for export classifier -->
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingExportCLF">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapseExportCLF" aria-expanded="true" aria-controls="collapseExportCLF">
+          #Export Classifer
+        </a>
+      </h4>
+    </div>
+    <div id="collapseExportCLF" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingExportCLF">
+      <div class="panel-body">
+        <p><u>Export the lastest <b>classifer (clf)</b> built by the learning application. </u></p>
+        <ul>
+          <li>The exported file is in <b>.PKL</b> file extension</li>
+          <li>It contains the scikit-learn classifer (clf) object</li>
+          <li class="text-info">The exported classifer can be imported by any Python application for classification as follows:</li>
+        </ul>
+        <!-- Use of classifier demostration -->
+        <div class="well">
+          <div id="importExampleEditor">import pickle, traceback
+        
+def classify(clfLocation, samplesList):
+  try:
+    with open(clfLocation) as clfFile:
+      clf = pickle.load(clfFile)
+      return clf.predict(samplesList)
+  except:
+    traceback.print_exc()
+    return None</div>
+        </div>
+        <div class="export">
+          <form method="POST">
+            <button class="btn btn-default" name="exportCLF">
+              Export <span class="glyphicon glyphicon-export"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Panel for export samples -->
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingExportS">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseExportS" aria-expanded="false" aria-controls="collapseExportS">
+          #Export Samples
+        </a>
+      </h4>
+    </div>
+    <div id="collapseExportS" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingExportS">
+      <div class="panel-body">
+        <p><u>Export the <b>samples</b> of this project</u></p>
+        <ul>
+          <li>The exported file is in <b>.CSV</b> file extension</li>
+          <li>The file use <b>tab ('\t')</b> as its column separator</li>
+          <li>The file contains <b>three columns</b> corresponding to <b>samples</b>, <b>features</b> and <b>labels</b></li>
+          <li class="text-info">You can use this file to import samples to other projects.</li>
+        </ul>
+        <br>
+        <div class="export">
+          <form method="POST" action="samples.csv">
+            <div class="btn-group">
+              <button class="btn btn-default dropdown-toggle" type="submit" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                Export  <span class="glyphicon glyphicon-export"></span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                <li role="presentation"><a role="menuitem" id="aSamples" href="#">All Samples</a></li>
+                <li role="presentation"><a role="menuitem" id="lSamples" href="#">Labeled Samples</a></li>
+                <li role="presentation"><a role="menuitem" id="uSamples" href="#">Unlabeled Samples</a></li>
+              </ul>
+              <!-- Hidden field storing the sample export option -->
+              <input type="hidden" name="exportS" val='aSamples' />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Panel for MTurk properties file -->
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingExportPF">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseExportPF" aria-expanded="false" aria-controls="collapseExportPF">
+          #Export Properties File
+        </a>
+      </h4>
+    </div>
+    <div id="collapseExportPF" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingExportPF">
+      <div class="panel-body">
+        <p><u>Export the <b>MTurk Properties File.</b></u></p>
+        <ul>
+          <li>The exported file is in <b>.properties</b> file extension</li>
+          <li>It contains the information of HIT title, description, keywords, reword, lifetime, duration, auto approval delay etc.</li>
+          <li class="text-info">You can import this file to other projects to obtain the same setting of modify upon it.</li>
+          <li class="text-warning">The exported file contains setting that's currently adopted by the learning application but not necessary be the one in MTurk setting. If you made changes in MTurk setting after the generation of applicaion, you must regenerate the application to adopt the setting.</li>
+        </ul>
+        <br>
+        <div class="export">
+          <form method="POST">
+            <button class="btn btn-default" name="exportPF">
+              Export <span class="glyphicon glyphicon-export"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Panel for MTurk question file -->
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingExportQF">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseExportQF" aria-expanded="false" aria-controls="collapseExportQF">
+          #Export Question File
+        </a>
+      </h4>
+    </div>
+    <div id="collapseExportQF" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingExportQF">
+      <div class="panel-body">
+        <p><u>Export the <b>MTurk Question File</b></u></p>
+        <ul>
+          <li>The exported file is in <b>.question</b> file extension</li>
+          <li>This file contains <b>XML data</b> that defines the layout and structure of a HIT including question overview, question content, answer type etc. </li>
+          <li class="text-info">You can import this file to other projects to obtain the same layout or modify upon it.</li>
+          <li class="text-warning">The exported file contains setting that's currently adopted by the learning application but not necessary be the one in MTurk setting. If you made changes in MTurk setting after the generation of applicaion, you must regenerate the application to adopt the setting.</li>
+        </ul>
+        <br>
+        <div class="export">
+          <form method="POST">
+            <button class="btn btn-default" type="submit" name="exportQF">
+              Export <span class="glyphicon glyphicon-export"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/ace/ace.js') }}"></script>
+  <script type="text/javascript">
+    var importExampleEditor = ace.edit("importExampleEditor");
+    importExampleEditor.setTheme("ace/theme/crimson_editor");
+    importExampleEditor.getSession().setMode("ace/mode/python");
+    importExampleEditor.setFontSize(15);
+    importExampleEditor.getSession().setTabSize(2);
+    //Set editor size and readonly mode
+    importExampleEditor.setOptions({
+        maxLines: Infinity,
+        readOnly: true,
+        highlightActiveLine: false,
+        highlightGutterLine: false
+    });
+    //Hide cursor
+    importExampleEditor.renderer.$cursorLayer.element.style.opacity=0;
+    
+    //Sample exportation controls
+    $("body").on('click', '#collapseExportS form ul li a', function(e) {
+      $('#collapseExportS form input[type="hidden"]').val($(this).attr('id'));
+      $('#collapseExportS form').submit();
+    });
+    
+    $(document).ready(function() {
+      {% if parameter['inExecution'] == 'training' %}
+      //Application is in execution. No exportation is allowed.
+      $('button').prop('disabled', true);
+      addMessage('warning', 'Application is executing. You are not allowed to perform export operation.');
+      {% endif %}
+    });
+  </script>
+{% endblock %}

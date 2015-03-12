@@ -1,0 +1,162 @@
+{% extends "project/dashboardLayout.html" %}
+
+{% block head %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/form.css') }}">
+  <style type="text/css" media="screen">
+    #sample2Info, #answer2Label { 
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 100px;
+        border-radius: 10px;
+    }
+  </style>
+{% endblock %}
+
+{% block page %}Function Setting{% endblock %}
+
+
+{% block dashboardContent %}
+<div class="container">
+  <div class="col-sm-10">
+    <div id="message"></div>
+    <form role="form" id="function" method="POST">
+    <!-- First part: sample2Info function -->
+      <fieldset id="part1">
+        <legend>Sample to information function</legend>
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i>def</i>&nbsp;&nbsp;<b>sample2Info</b>&nbsp;(<i>self, samples, features</i>)</h3>
+          </div>
+          <div class="panel-body">
+            <!-- Specification -->
+            <p>This function defines how samples are transfered into information that going to be displayed on MTurk.</p>
+            <p><b><u>Parameter</u></b></p>
+            <p><i>self</i>: An instance of mturk_sklearn. Please ignore at this moment.</p>
+            <p><b><i>sample</i></b>: A sample</p>
+            <p><b><i>feature</i></b>: Features of the sample</p>
+            <p>If object scale variables are needed, you can define them in self.useDefine (dict type). <i>For example, self.useDefine['count'].</i></p>
+            <!-- Code editor -->
+            <div class="well">
+              <div id="sample2Info">{% if parameter['sample2Info'] %}{{parameter['sample2Info'] }}{% else %}def sample2Info(self, sample, feature):
+  #Please put your code here
+
+
+
+{% endif %}</div>
+            </div>
+          </div>
+        </div>
+        <input name="sample2Info" type="hidden" />
+      </fieldset>
+      
+      <!-- Second part: answer2Label function -->
+      <fieldset id="part2">
+        <legend>Answers to labels function</legend>
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i>def</i>&nbsp;&nbsp;<b>answer2Label</b>&nbsp;(<i>self, answers</i>)</h3>
+          </div>
+          <div class="panel-body">
+            <!-- Specification -->
+            <p>This function defines how answers returned by mturk workers are parsed into labels that are going to be passed to learner.</p>
+            <p><b><u>Parameter</u></b></p>
+            <p><i>self</i>: An instance of mturk_sklearn. Please ignore at this moment.</p>
+            <p><b><i>answer</i></b>: An answer for a question given by workers in <b>string</b> data type. Format of anwers are specified by question file, which can be configured in <a href="{{ url_for('projectSetting.mturk', projectName=projectName) }}">Active learning and MTurk Setting</a></p>
+            <p>If object scale variables are needed, you can define them in self.useDefine (dict type). <i>For example, self.useDefine['count'].</i></p>
+            <!-- Code editor -->
+            <div class="well">
+              <div id="answer2Label">{% if parameter['answer2Label'] %}{{ parameter['answer2Label'] }}{% else %}def answer2Label(self, answer):
+  #Please put your code here
+  
+  
+  
+{% endif %}</div>
+            </div>
+          </div>
+        </div>
+        <input name="answer2Label" type="hidden" />
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ace/ace.js') }}"></script>
+  <script>
+    var s2iEditor = ace.edit("sample2Info");
+    s2iEditor.setTheme("ace/theme/crimson_editor");
+    s2iEditor.getSession().setMode("ace/mode/python");
+    s2iEditor.setFontSize(15);
+    s2iEditor.getSession().setTabSize(2);
+    s2iEditor.setOptions({
+        maxLines: Infinity
+    });
+    
+    var a2lEditor = ace.edit("answer2Label");
+    a2lEditor.setTheme("ace/theme/crimson_editor");
+    a2lEditor.getSession().setMode("ace/mode/python");
+    a2lEditor.setFontSize(15);
+    a2lEditor.getSession().setTabSize(2);
+    a2lEditor.setOptions({
+        maxLines: Infinity
+    });
+    
+    $("body").on('click', '.action > button[name="save"]', function(e) {
+      //Check integrity of sample2Info function interface
+      var s2i = s2iEditor.getSession().getValue();
+      var s2iLines = s2i.split('\n');
+      var s2iLine1 = "def sample2Info(self, sample, feature):";
+      
+      if (s2iLines[0].substring(0, s2iLine1.length) === s2iLine1){
+        $('input[name="sample2Info"]').val(s2i);
+      }
+      else {
+        addMessage('danger', 'Invalid defination for sample2Info function.');
+        return false;
+      }
+      
+      //Check integrity of answer2Label function interface
+      var a2l = a2lEditor.getSession().getValue();
+      var a2lLines = a2l.split('\n');
+      var a2lLine1 = "def answer2Label(self, answer):";
+      
+      if (a2lLines[0].substring(0, a2lLine1.length) === a2lLine1){
+        $('input[name="answer2Label"]').val(a2l);
+      }
+      else {
+        addMessage('danger', 'Invalid defination for answer2Label function.');
+        return false;
+      }
+    });
+    
+    $(document).ready(function() {
+    {% if parameter['inExecution'] == 'training' %}
+      //Application is in execution. No modification of user-defined functions is allowed
+      disableAllFields();
+    
+      s2iEditor.setOptions({
+        readOnly: true,
+        highlightActiveLine: false,
+        highlightGutterLine: false
+      });
+      s2iEditor.renderer.$cursorLayer.element.style.opacity=0;
+      
+      a2lEditor.setOptions({
+        readOnly: true,
+        highlightActiveLine: false,
+        highlightGutterLine: false
+      });
+      a2lEditor.renderer.$cursorLayer.element.style.opacity=0;
+      
+      addMessage('warning', 'Training process is runing. You are not allowed to change the functions.');
+    {% endif %}
+    });
+  </script>
+{% endblock %}

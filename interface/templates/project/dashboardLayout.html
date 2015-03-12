@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block head %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block title %}Project: {{ parameter['projectName'] }}{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row">
+      {% block sidebar %}
+      <!-- Left sidebar for all dashboard page-->
+      <div class="col-sm-3 col-md-2 sidebar">
+        <ul class="nav nav-sidebar">
+          <li><a href="{{ url_for('project.overview', projectName=parameter['projectName']) }}">Project Overview<span class="sr-only">(current)</span></a></li>
+        </ul>
+        <ul class="nav nav-sidebar">
+          <li><a href="{{ url_for('projectSetting.mturk', projectName=parameter['projectName']) }}">Active learning and MTurk Setting</a></li>
+          <li><a href="{{ url_for('projectSetting.function', projectName=parameter['projectName']) }}">User Function Setting</a></li>
+          <li><a href="{{ url_for('projectSetting.sklearn', projectName=parameter['projectName']) }}">Scikit-learn Setting</a></li>
+        </ul>
+        <ul class="nav nav-sidebar">
+          <li><a href="{{ url_for('projectExecution.execution', projectName=parameter['projectName']) }}">Execution</a></li>
+          <li><a href="{{ url_for('project.samples', projectName=parameter['projectName']) }}">Samples</a></li>
+          <li><a href="{{ url_for('project.fullLogs', projectName=parameter['projectName']) }}">Logs</a></li>
+          <li><a href="{{ url_for('projectStatistic.statistic', projectName=parameter['projectName']) }}"">Statistic</a></li>
+        </ul>
+        <ul class="nav nav-sidebar">
+          <li><a href="{{ url_for('project.export', projectName=parameter['projectName']) }}">Export</a></li>
+          <li><a href="{{ url_for('project.remove', projectName=parameter['projectName']) }}">Remove</a></li>
+          
+        </ul>
+      </div>
+      {% endblock %}
+      
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h1 class="page-header">{{ parameter['projectName'] }}: {% block page %}Overview{% endblock %}</h1>
+        <!-- div block for displaying messages -->
+        <div id="message">{{ messages }}{% with msgs = get_flashed_messages() %}{% if msgs %}{% for msg in msgs %}{{ msg }}{% endfor %}{% endif %}{% endwith %}</div>
+        {% block dashboardContent %}{% endblock %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <!-- Sidebar active control -->
+  <script type="text/javascript">
+    $('ul.nav-sidebar > li > a[href="' + document.location.pathname  + '"]').parent().addClass('active');
+  </script>
+{% endblock %}

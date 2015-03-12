@@ -1,0 +1,245 @@
+{% extends "project/dashboardLayout.html" %}
+
+{% block page %}Logs{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <style type="text/css" media="screen">
+    #logTable{
+      width: 100%;
+    }
+    
+    tr td:first-child{
+      width:7%;
+      white-space:nowrap;
+    }
+    tr td:nth-child(2){
+      width:30%;
+    }
+    tr td:nth-child(3){
+      width:7%;
+      white-space:nowrap;
+    }
+    
+    .pagination{
+      margin: 0 0 0 0;
+    }
+    
+    .pagination > li > a{
+      color: black;
+    }
+    
+    #goTo{
+      display: inline-block;
+      width: 85px;
+    }
+  </style>
+{% endblock %}
+
+{% block dashboardContent %}
+<div id=" displayOptions" class="action">
+  <!-- Page nav bar -->
+  <ul id="pageNav" class="pagination">
+  </ul>
+  
+  <!-- "Go To Page field" -->
+  <div id="goTo">
+    <div class="input-group">
+      <input type="text" name="page" class="form-control">
+      <span class="input-group-btn">
+        <button id="goToPage" class="btn btn-default" type="button">Go</span></button>
+      </span>
+    </div>
+  </div>
+  <ul class="pagination">
+  <li>
+    <a class="btn btn-default" id="clearLogs" data-toggle="modal" href="#confirmation" role="button">Clear Logs <span class="glyphicon glyphicon-trash"></span>
+  </a>
+  </li>
+  </ul>
+</div>
+
+<!-- Table for displaying logs -->
+<div class="table-responsive">
+  <table id="logTable" class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Date/Time</th>
+        <th>Type</th>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- Pop up module for action confirmation -->
+<div id="confirmation" class="modal fade">
+	<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
+        <h3>Are you sure?</h3>
+      </div>
+      <div class="modal-body">
+        <div id="modal-body-des" class="row">
+          <p>Remove all logs of this project including execution records, training accuracy records, loading samples records, etc. Log id serial will be reset to 1. However, detail MTurk record such as HIT creation and answer submittion record are not included in this operation.</p>
+          <ul>
+            <li class="text-info">Samples, labels and trained model will not be affected.</li>
+            <li class="text-warning">This action cannot be reversed.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <strong>Do you want to continue the action?</strong>
+        <form method='POST'>
+          <input id="selected-remove-mode" name="selected-remove-mode" type="hidden"/>
+          <input id="confirm-yes" name="clearLogs" type="submit" class="btn btn-link" value="Yes">
+          <input aria-hidden="true" type="button" data-dismiss="modal" class="btn btn-link" value="No">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script type="text/javascript">
+    var page = 1;           //Record of the current page number
+    var totalPage = 1;      //Record of the amount of total pages
+    
+    $(document).ready(function() 
+    {
+      getLogs();
+    });
+    
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    function getLogs(){
+      $.getJSON($SCRIPT_ROOT + "/project/{{ parameter['projectName'] }}/_logs", 
+      {
+        page:  page
+      }, 
+      function(data) 
+      {
+        if(data.hasOwnProperty('amount') && data.amount > 0) 
+        {
+          clearLogTable();                                //Clear table
+          totalPage = data.totalPage;                     //Update total page value
+          for(var i = data.amount - 1; i >= 0; i--)       //Add rows for each log
+          {
+            addLogRow(data.log_id[i], data.log_time[i], data.log_type[i], data.log_msg[i]);
+          }
+          setPageNav(totalPage);                          //Render page nav bar
+        }
+        else
+        {
+          //Add empty indicator row
+          $('#logTable tbody').append('<tr><td colspan="4"><h3 style="color: grey; text-align: center">Empty</h3></td></tr>')
+        }
+      });
+    }
+    
+    //"Go to page" action controls
+    $("body").on('click', '#goToPage', function(e) {
+      if($("input[name='page']").val().match(/^\+?(0|[1-9]\d*)$/)){
+        var temp = parseInt($("input[name='page']").val());
+        if(temp >= 1 && temp <= totalPage){
+          page = temp;
+          getLogs();
+        }
+        else{
+          addMessage('warning', 'Page out of range.');
+        }
+      }
+      else{
+        addMessage('warning', 'Input most be an positive integer.');
+      }
+      $("input[name='page']").val('')
+    });
+    
+    //Page number onclick controls
+    $("body").on('click', '#pageNav >li > a.pageNumber', function(e) {
+      page = parseInt($(e.target).text());
+      getLogs();
+    });
+    
+    //Previous page onclick control
+    $("body").on('click', '#previous', function(e) {
+      if(page>1){
+        page--;
+        getLogs();
+      }
+    });
+    
+    //Next page onclick control
+    $("body").on('click', '#next', function(e) {
+      if(page<totalPage){
+        page++;
+        getLogs();
+      }
+    });
+    
+    //Link release fix
+    $("#displayOptions ul.pagination>li>a").mouseup(function(){
+      $(this).blur();
+    });
+    
+    //Page nav bar rendering
+    function setPageNav(tp){
+      totalPage = tp
+      $('#pageNav').empty();
+      if(totalPage > 0 && totalPage < 6){
+        for(var i = 1; i <= totalPage; i++){
+          if(i == page)
+            $('#pageNav').append('<li class="active"><a href="#">' + i + '</a></li>');
+          else
+            $('#pageNav').append('<li><a class="pageNumber" href="#">' + i + '</a></li>');
+        }
+      }
+      else if (totalPage >= 6){
+        $('#pageNav').append('<li class="active"><a href="#">' + page + '</a></li>');
+        //Before current page
+        if (page<=3){
+          for(var i = page-1; i > 0; i--) 
+            $('#pageNav').prepend('<li><a class="pageNumber" href="#">' + i + '</a></li>');
+        } else if(page > 3 && totalPage - page > 3){
+          $('#pageNav').prepend('<li><a class="pageNumber" href="#">' + (page-1) + '</a></li>');
+          $('#pageNav').prepend('<li><a href="#">...</a></li>');
+          $('#pageNav').prepend('<li><a class="pageNumber" href="#">1</a></li>');
+        } else if(totalPage - page <= 3){
+          $('#pageNav').prepend('<li><a class="pageNumber" href="#">' + (page-1) + '</a></li>');
+          $('#pageNav').prepend('<li><a href="#">...</a></li>');
+          $('#pageNav').prepend('<li><a class="pageNumber" href="#">1</a></li>');
+        }
+        //After current page
+        if(totalPage - page < 3){
+          for(var i = page+1; i <= totalPage; i++) 
+            $('#pageNav').append('<li><a class="pageNumber" href="#">' + i + '</a></li>');
+        } else if(totalPage - page >= 3){
+          $('#pageNav').append('<li><a class="pageNumber" href="#">' + (page+1) + '</a></li>');
+          $('#pageNav').append('<li><a class="pageNumber" href="#">' + (page+2) + '</a></li>');
+          $('#pageNav').append('<li><a href="#">...</a></li>');
+          $('#pageNav').append('<li><a class="pageNumber" href="#">' + totalPage + '</a></li>');
+        } 
+      }
+      $('#pageNav').prepend('<li><a href="#" id="previous"><span aria-hidden="true">&laquo;</span></a></li>');
+      $('#pageNav').append('<li><a href="#" id="next"><span aria-hidden="true">&raquo;</span></a></li>');
+    }
+    
+    function clearLogTable(){
+      $('#logTable tbody').empty();
+    }
+    
+    function addLogRow(id, time, type, message){
+      var row = '<tr class="text-' + type + '">';
+      row += '<td>' + id + '</td>';
+      row += '<td>' + time + '</td>';
+      row += '<td>' + type + '</td>';
+      row += '<td>' + message + '</td>';
+      row += '</tr>';
+      $('#logTable tbody').prepend(row);
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,15 @@
+  <Question>
+    <QuestionIdentifier>{0}</QuestionIdentifier>
+    <DisplayName>{1}</DisplayName>
+    <IsRequired>true</IsRequired>
+    <QuestionContent>
+      <FormattedContent><![CDATA[{2}]]></FormattedContent>
+    </QuestionContent>
+    <AnswerSpecification>
+      <FreeTextAnswer>
+        <Constraints>
+          <AnswerFormatRegex regex="{3}" errorText="{4}"/>    
+        </Constraints>
+      </FreeTextAnswer>
+    </AnswerSpecification>
+  </Question>

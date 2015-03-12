@@ -1,0 +1,234 @@
+{% extends "project/dashboardLayout.html" %}
+{% block page %}Statistic{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/accuracyChart.css') }}">
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/PieChart.css') }}">
+  <style type="text/css" media="screen">
+    #accuracyChart, #sampleCategory, #mturkHITs{
+      width: 90%;
+    }
+    
+    .options {
+      padding-top: 5px;
+      text-align:center;
+    }
+  </style>
+{% endblock %}
+
+
+
+{% block dashboardContent %}
+<div id="chartList" role="tabpanel">
+  <!-- Nav bar of different charts -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#accuracy" aria-controls="accuracy" role="tab" data-toggle="tab">Accuracy</a></li>
+    <li role="presentation"><a href="#sampleCategory" aria-controls="sampleCategory" role="tab" data-toggle="tab">Sample Distribution</a></li>
+    <li role="presentation"><a href="#mturkHITs" aria-controls="mturkHITs" role="tab" data-toggle="tab">MTurk HIT</a></li>
+  </ul>
+
+  <div id="chartArea" class="tab-content">
+    <!-- Accuracy info -->
+    <div role="tabpanel" id="accuracy" class="tab-pane active">
+      <div class="options">
+        <div class="btn-group" data-toggle="buttons">
+          <button class="btn btn-default" name="reflesh"><span class="glyphicon glyphicon-refresh"></span></button>
+          <button class="btn btn-default"  data-toggle="modal" data-target="#confirmation" id="clearAccuracy" name="clearRecords"><span class="glyphicon glyphicon-trash"></span></button>
+        </div>
+      </div>
+      <div id="accuracyChart"></div>
+    </div>
+    
+    <!-- Sample info -->
+    <div role="tabpanel" id="sampleCategory" class="tab-pane" >
+      <div class="options">
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-default active">
+            <input type="radio" name="options" id="labeledSample" value="LabelDistributionChart" autocomplete="off" checked>Label Distribution
+          </label>
+          <label class="btn btn-default">
+            <input type="radio" name="options" id="labelPrediction" value="SamplePredictionChart" autocomplete="off">Sample Prediction
+          </label>
+          <label class="btn btn-default">
+            <input type="radio" name="options" id="OverallDistribution" value="OverallDistributionChart" autocomplete="off">Overall Distribution
+          </label>
+        </div>
+        <div class="btn-group" data-toggle="buttons">
+          <button class="btn btn-default" name="reflesh"><span class="glyphicon glyphicon-refresh"></span></button>
+          <button class="btn btn-default"  data-toggle="modal" data-target="#confirmation" id="clearSampleRecord" name="clearRecords"><span class="glyphicon glyphicon-trash"></span></button>
+        </div>
+      </div>
+      <div id="sampleCategoryCharts"></div>
+    </div>
+    
+    <!-- MTurk HIT info -->
+    <div role="tabpanel" id="mturkHITs" class="tab-pane" >
+      <div class="options">
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-default active">
+            <input type="radio" name="options" id="answeredRate" value="HITAnsweredRateChart" autocomplete="off" checked>Answered Rate
+          </label>
+          <label class="btn btn-default">
+            <input type="radio" name="options" id="pendingTimeRate" value="HITPendingTimeChart" autocomplete="off">Pending Time Rate
+          </label>
+          <label class="btn btn-default">
+            <input type="radio" name="options" id="durationRate" value="HITDurationRateChart" autocomplete="off">Duration Rate
+          </label>
+        </div>
+        <div class="btn-group" data-toggle="buttons">
+          <button class="btn btn-default" name="reflesh"><span class="glyphicon glyphicon-refresh"></span></button>
+          <button class="btn btn-default"  data-toggle="modal" data-target="#confirmation" id="clearMturkHITRecord" name="clearRecords"><span class="glyphicon glyphicon-trash"></span></button>
+        </div>
+      </div>
+      <div id="mturkHITCharts"></div>
+    </div>
+  </div>
+  
+  <!-- Supportive definitions for accuracy chart -->
+  <svg id="accuracyChartSupport" style="width: 0; height: 0;">
+    <defs>
+      <linearGradient id="insufficientZoneColor">
+        <stop offset="70%" style="stop-color:rgb(0,0,0);stop-opacity:0.2" />
+        <stop offset="100%" style="stop-color:rgb(0,0,0);stop-opacity:0.0" />
+      </linearGradient>
+    </defs>
+  </svg>
+  
+  
+  <!-- Supportive filters for pie charts -->
+  <svg id="pieChartSVG" style="width: 0; height: 0;">
+    <defs>
+      <filter id='pieChartInsetShadow'>
+        <feOffset dx='0' dy='0'/>
+        <feGaussianBlur stdDeviation='3' result='offset-blur' />
+        <feComposite operator='out' in='SourceGraphic' in2='offset-blur' result='inverse' />
+        <feFlood flood-color='black' flood-opacity='1' result='color' />
+        <feComposite operator='in' in='color' in2='inverse' result='shadow' />
+        <feComposite operator='over' in='shadow' in2='SourceGraphic' />
+      </filter>
+      <filter id="pieChartDropShadow">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+        <feOffset in="blur" dx="0" dy="3" result="offsetBlur" />
+        <feMerge>
+          <feMergeNode />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+  </svg>
+</div>
+
+<!-- Pop up windows for clearing records -->
+<div id="confirmation" class="modal fade">
+	<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
+        <h3>Are you sure?</h3>
+      </div>
+      <div class="modal-body">
+        <div id="modal-body-des" class="row"></div>
+      </div>
+      <div class="modal-footer">
+        <strong>Do you want to continue the action?</strong>
+        <input id="recordType" name="recordType" type="hidden"/>
+        <input id="confirm-yes" name="clearLogs" type="button" data-dismiss="modal" class="btn btn-link" value="Yes">
+        <input aria-hidden="true" type="button" data-dismiss="modal" class="btn btn-link" value="No">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block endScript %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/d3.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/accuracyChart.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/PieChart.js') }}"></script>
+  <script type="text/javascript">
+    //On page ready, render accuracy chart
+    $(document).ready(function() 
+    {
+      getAccuracyData();
+    });
+    
+    //Resize chart when window is resized
+    $(window).resize(function() {
+      refleshChart();
+    });
+    
+    //Reflesh chart when reflesh button is clicked
+    $("body").on('click', 'button[name="reflesh"]', function(e) {
+      refleshChart();
+    });
+    
+    //Reflesh the displaying chart
+    function refleshChart(){
+      if($('#accuracy').hasClass("active"))
+        getAccuracyData();
+      else if($('#sampleCategory').hasClass("active"))
+        getAndDrawPieChart(
+          $('#sampleCategory .options label[class="btn btn-default active"]').children('input').val()
+        );
+      else if($('#mturkHITs').hasClass("active"))
+        getAndDrawPieChart(
+          $('#mturkHITs .options label[class="btn btn-default active"]').children('input').val()
+        );
+    }
+    
+    //Render chart when tab are changed
+    $("body").on('click', '#chartList li a', function(e) {
+      var target = $(e.target);
+      if(target.attr('href') == '#accuracy' && !target.closest('li').hasClass('active'))
+        getAccuracyData();
+        
+      else if(target.attr('href') == '#sampleCategory' && !target.closest('li').hasClass('active'))
+        getAndDrawPieChart(
+          $('#sampleCategory .options label[class="btn btn-default active"]').children('input').val()
+        );
+        
+      else if(target.attr('href') == '#mturkHITs' && !target.closest('li').hasClass('active'))
+        getAndDrawPieChart(
+          $('#mturkHITs .options label[class="btn btn-default active"]').children('input').val()
+        );
+    });
+    
+    //Change chart when chart options are selected
+    $("body").on('click', '#chartArea .options label', function(e) {
+      var target = $(e.target);
+      getAndDrawPieChart(target.children('input').val());
+    });
+    
+    //Show clear record confirmation module
+    $("body").on('click', 'button[name="clearRecords"]', function(e) {
+      $('#modal-body-des').empty();
+      if($('#accuracy').hasClass("active")){
+        $('#modal-body-des').append('<p>The system is going to <b>remove all existing classification accuracy records</b>. This action will not affect the learning process but you will lose the trace of the learning process so far.</p>');
+      }
+      else if($('#sampleCategory').hasClass("active")){
+        $('#modal-body-des').append('<p>The system is going to <b>remove all existing sample distribution records</b>. This action will not affect the learning process but you will lose the trace of the learning process so far.</p>');
+      }
+      else if($('#mturkHITs').hasClass("active")){
+        $('#modal-body-des').append('<p>The system is going to <b>remove all existing MTurk records</b>. It involves not only the information of the currently selected chart, but all MTurk related records. This action will not affect the learning process but you will lose the trace of the MTurk activities so far.</p>');
+      }
+      $('#modal-body-des').append('<ul><li class="text-info">Samples and labels are not affected.</li></ul>');
+      $('#modal-body-des').append('<ul><li class="text-info">Learning model are not affected.</li></ul>');
+      $('#modal-body-des').append('<ul><li class="text-warning">Action cannot be reversed.</li></ul>');
+    
+      $('#confirmation #recordType').val($(this).attr('id'))
+    });
+    
+    //Clear record
+    $("body").on('click', '#confirm-yes', function(e) {
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+      $.getJSON($SCRIPT_ROOT + '_removeRecords', {
+        recordType:        $('#confirmation #recordType').val()
+      }, function(data) {
+        addMessage(data.msgType, data.msg);
+        refleshChart();
+      });
+    });
+  </script>
+{% endblock %}

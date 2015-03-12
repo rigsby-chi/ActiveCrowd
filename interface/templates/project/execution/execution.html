@@ -1,0 +1,208 @@
+{% extends "project/dashboardLayout.html" %}
+
+{% block head %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/form.css') }}">
+  <style type="text/css" media="screen">
+    #logsPanel div.panel-body {
+      height: 250px;
+      overflow: auto;
+    }
+    
+    #logs {
+      list-style-type: none;
+    }
+  </style>
+{% endblock %}
+
+{% block page %}Execution{% endblock %}
+
+{% block dashboardContent %}
+<div class="container">
+  <div id="message"></div>
+  <div class="row">
+    <!-- Block of exeuction options -->
+    <div class="col-sm-5">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><b>Execution Control</b></h3>
+        </div>
+        <div class="panel-body">
+          <p>Start sample labeling and learning process</p>
+          <form method="POST" id="execution">
+            <fieldset id="part1">
+            <br>
+            <div class="row required">
+              <label class="control-label">Use Sandbox:</label>
+              <div class="inputField">
+                <select id="useSandbox" class="selectpicker" data-width="50%" name="useSandbox" {% if parameter['inExecution'] or parameter['MTurk'] == 'warning' %}disabled{% endif %}>
+                  <option value="True">True</option>
+                  <option value="False" {% if 'useSandbox' in parameter and not parameter['useSandbox'] %}selected{% endif %}>False</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <label class="control-label">Stop at error rate:</label>
+              <input type="number" class="form-control" name="stopAtErrorRate" step="0.01" placeholder="e.g. 0.8" value="{% if 'stopAtErrorRate' in parameter and parameter['stopAtErrorRate'] is not none %}{{ parameter['stopAtErrorRate'] }}{% endif %}" {% if parameter['inExecution'] or parameter['MTurk'] == 'warning' %}disabled{% endif %}>
+            </div>
+            <div class="row {% if not parameter['MTurk'] == 'warning' %}required{% endif %}">
+              <label class="control-label">Stop at labeled samples:</label>
+              <input type="number" class="form-control" name="stopAtSampleAmount" min='1' value="{% if 'stopAtSampleAmount' in parameter and parameter['stopAtSampleAmount'] is not none %}{{ parameter['stopAtSampleAmount'] }}{% endif %}" {% if parameter['inExecution'] or parameter['MTurk'] == 'warning' %}disabled{% endif %}>
+            </div>
+            <div class="action">
+              <button class="btn btn-default" name='remove' type="submit" data-toggle="tooltip" data-placement="top" title="Remove the training application" {% if parameter['inExecution'] %}disabled{% endif %}>Remove <span class="glyphicon glyphicon-floppy-remove" title="Remove the current exeuction file"></span></button>
+              {% if parameter['inExecution'] == 'training' %}<button class="btn btn-default" name='stop' type="submit" data-toggle="tooltip" data-placement="top" title="Stop the training process">Stop <span class="glyphicon glyphicon-stop"></span></button>{% else %}<button class="btn btn-default" name='execute' type="submit" data-toggle="tooltip" data-placement="top" title="State training a model" {% if parameter['inExecution'] == 'clearingMTurk' %}disabled{% endif %}>Execute <span class="glyphicon glyphicon-play"></span></button>{% endif %}
+            </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Block for sample importation -->
+    <div class="col-sm-5">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><b>Import samples from CSV file</b></h3>
+        </div>
+        <div class="panel-body">
+          <p><u>CSV file requirement:</u></p>
+          <ul>
+            <li>Columns must be separated by <b>tab ('\t')</b></li>
+            <li>First column stores <u>samples</u> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="e.g. [21, 31, 169]"></span></li>
+            <li>Second column stores <u>features</u> (in Python list) <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="e.g. [0.08203, 0.12109, 0.66015]"></span></li>
+            <li>Third column: <u>labels</u> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="e.g. True"></li>
+            <li class="text-warning">If a sample has no label, use <b>NULL</b> instead.</li>
+          </ul>
+          <form method="POST" enctype="multipart/form-data" class="action">
+            <div class="input-group">
+              <input name="samplesCSVName" type="text" placeholder="Click Browse to select file" class="form-control" readonly>
+              <span class="input-group-btn">
+                <span class="btn btn-default btn-file">Browse<input name="samplesCSV" type="file"></span>
+              </span>
+            </div>
+            <br>
+            <div class="action">
+              <button class="btn btn-default" name='importSamples' type="submit">Import <span class="glyphicon glyphicon-import"></span></button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <!-- Block for instant logging display -->
+    <div class="col-sm-10">
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="logsPanelHeading">
+          <h4 class="panel-title">
+            <a data-toggle="collapse" href="#logsPanel" aria-expanded="false" aria-controls="logsPanel" class="">
+              Execution Logs
+            </a>
+          </h4>
+        </div>
+        <div id="logsPanel" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="logsPanelHeading">
+          <div class="panel-body">
+            <div id="logEmpty"></div>
+            <ul id="logs"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+    
+{% block endScript %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script>
+    
+    var keepGettingLogs = null;
+    $(document).ready(function() 
+    {
+      if($('#logs').is(':empty'))
+      {% if parameter['inExecution'] %}
+      //Application in execution. Keep checking for latest logs
+      keepGettingLogs = setInterval("updateLogs(false);",1000);
+      {% else %}
+      //Application not in execution. Get the latest logs of last execution
+      updateLogs(init = true);
+      {% endif %}
+      if($('#logs').is(':empty')){
+        $('#logEmpty').append('<h3 style="color: grey; text-align: center">Empty</h3>')
+      }
+      
+      {% if parameter['inExecution'] == 'clearingMTurk' %}
+      addMessage('warning', 'The operation of clearing MTurk account is running. You are not allowed to execute learning process.')
+      {% endif %}
+    });
+    
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    
+    var count = 0;   //Record the current log message id
+    function updateLogs(init){
+      $.getJSON($SCRIPT_ROOT + "/project/{{ parameter['projectName'] }}/execution/_getLogs", 
+      {
+        currentCount:  count
+      }, 
+      function(data) 
+      {
+        if(data.hasOwnProperty('amount') && data.amount > 0) 
+        {
+          $('#logEmpty').empty();
+          for(var i = data.amount - 1; i >= 0; i--)
+          {
+            addLog(data.log_id[i], data.log_type[i], data.log_msg[i], data.log_time[i]);
+          }
+          count = data.newCount;
+        }
+        if(!data.is_alive){     //If the execution is stopped
+          if(!init && data.log_type[0] == 'danger'){
+            addMessage('danger', 'Unexpected error occured causing termination of training.');
+          } else if(!init && data.log_type[0] == 'success') {
+            if(data.log_msg[0] == '--------- Execution completed ---------')
+              addMessage('success', 'Training process completed.');
+            else if(data.log_msg[0] == '--------- Clearing MTurk Account Completed ---------')
+              addMessage('success', 'Operations of clearning MTurk account completed');
+          }
+          resetStatus();
+        }
+      });
+    }
+    
+    //Reset button status
+    function resetStatus(){
+      clearInterval(keepGettingLogs);
+      {% if not parameter['MTurk'] == 'warning' %}
+      //MTurk is enabled, re-enable execution options
+      $("input[name='stopAtErrorRate']").prop('disabled', false);
+      $("input[name='stopAtSampleAmount']").prop('disabled', false);
+      $("#useSandbox").prop('disabled', false);
+      $('.selectpicker').selectpicker('refresh')
+      {% endif %}
+      //Re-enable execution and remove buttons
+      $("button[name='remove']").prop('disabled', false);
+      $("button[name='stop']").empty();
+      $("button[name='stop']").append('Execute <span class="glyphicon glyphicon-play"></span>');
+      $("button[name='stop']").prop('name', 'execute');
+      $("button[name='execute']").prop('disabled', false);
+    }
+    
+    function addLog (id, type, message, time){
+      var block = "<li class='text-" + type + "'>";
+      block += " " + id + " " + time + " ";
+      if(type=='danger') {block += 'Error: '; }
+      else if(type=="info") { block += 'Info: '; }
+      else if(type=='success') { block += 'Success: '; }
+      else if(type=='warning') { block += 'Warning: '; }
+      block += message + "</li>";
+      //Maintance at most 50 logs in the page
+      if ($("#logs li").length >= 50){
+        $('#logs li:last').remove();
+      }
+      $("#logs").prepend(block);
+    }
+  </script>
+{% endblock %}

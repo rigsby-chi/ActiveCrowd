@@ -1,0 +1,445 @@
+{% extends "project/dashboardLayout.html" %}
+
+{% block head %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
+{% block page %}SKLean Setting{% endblock %}
+
+{% block dashboardContent %}
+<div class="container">
+  <div class="col-md-10">
+    <div id="message"></div>
+    <form role="form" enctype="multipart/form-data" id="createProject" method="POST">
+      <!-- First part -->
+      <fieldset id="part1">
+        <legend>Active Learning Setting</legend>
+        <!-- Learning algorithm selection -->
+        <div class="row required top">
+          <label class="control-label">Learning algorithm: </label>
+          <select class="selectpicker" data-width="65%" id="learningAlgorithm" name="learningAlgorithm">
+            <option value="SVM" {% if parameter['learningAlgorithm'] == 'SVM' %}selected{% endif %}>Support Vector Machines</option>
+            <option value="DT" {% if parameter['learningAlgorithm'] == 'DT' %}selected{% endif %}>Decision Trees</option>
+            <option value="NB" {% if parameter['learningAlgorithm'] == 'NB' %}selected{% endif %}>Naive Bayes</option>
+            <option value="NN" {% if parameter['learningAlgorithm'] == 'NN' %}selected{% endif %}>Nearest Neighbors</option>
+            <option value="EM" {% if parameter['learningAlgorithm'] == 'EM' %}selected{% endif %}>Ensemble Methods (in progress)</option>
+          </select>
+        </div>
+        
+        <!-- Classifier selection -->
+        <div class="row required top">
+          <label class="control-label">Classifier Class: </label>
+          <select class="selectpicker" data-width="65%" id="classifierClass" name="classifierClass">
+            <option class='SVM' value="SVC" {% if parameter['sklearnMode'] == 'SVC' %}selected{% endif %}>Support Vector Classification (SVC)</option>
+            <option class='SVM' value="LinearSVC" disabled>Linear Support Vector Classification (LinearSVC)</option>
+            <option class='SVM' value="NuSVC" {% if parameter['sklearnMode'] == 'NuSVC' %}selected{% endif %}>Nu-Support Vector Classification (NuSVC)</option>
+            
+            <option class='DT' value="DecisionTreeClassifier" {% if parameter['sklearnMode'] == 'DecisionTreeClassifier' %}selected{% endif %}>Decision Tree Classifier</option>
+            
+            <option class='NB' value="GaussianNB" {% if parameter['sklearnMode'] == 'GaussianNB' %}selected{% endif %}>Gaussian Naive Bayes (GaussianNB)</option>
+            <option class='NB' value="MultinomialNB" {% if parameter['sklearnMode'] == 'MultinomialNB' %}selected{% endif %}>Multinomial Naive Bayes (MultinomialNB)</option>
+            <option class='NB' value="BernoulliNB" {% if parameter['sklearnMode'] == 'BernoulliNB' %}selected{% endif %}>Bernoulli Naive Bayes (BernoulliNB)</option>
+            <option class='NN' value="KNeighborsClassifier" {% if parameter['sklearnMode'] == 'KNeighborsClassifier' %}selected{% endif %}>K Neighbors Classifier (KNeighborsClassifier)</option>
+            <option class='NN' value="RadiusNeighborsClassifier"disabled>Radius Neighbors Classifier (RadiusNeighborsClassifier)</option>
+            <option class='EM' value="AdaBoostClassifier">AdaBoost classifier</option>
+            <option class='EM' value="BaggingClassifier">Bagging classifier</option>
+            <option class='EM' value="ExtraTreesClassifier">Extra-trees classifier</option>
+            <option class='EM' value="GradientBoostingClassifier">Gradient Boosting Classifier</option>
+            <option class='EM' value="RandomForestClassifier">Random forest classifier</option>
+          </select>
+        </div>
+        
+        <div class="action">
+          <p>(Reference: <a href="http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html" target="_blank">sklearn's documentation</a>)</p>
+        </div>
+        <br />
+        
+        <!-- Below this point are parameter setting for different classifier specified in class value -->
+        <div class="row required SVC">
+          <label class="control-label">C: </label>
+          <input type="number" class="form-control" name="C" value="{% if 'C' in parameter %}{{ parameter['C'] }}{% else %}1.0{% endif %}" step="0.1" />
+        </div>
+        
+        <div class="row required NuSVC">
+          <label class="control-label">nu: </label>
+          <input type="number" class="form-control" name="nu" value="{% if 'nu' in parameter %}{{ parameter['nu'] }}{% else %}0.5{% endif %}" step="0.1" min='0.1' max='1.0' />
+        </div>
+        
+        <div class="row required SVC NuSVC">
+          <label class="control-label">kernel: </label>
+          <select class="selectpicker" data-width="65%" name="kernel">
+            <option value="linear" {% if parameter['kernel'] == 'linear' %}selected{% endif %}>linear</option>
+            <option value="poly" {% if parameter['kernel'] == 'poly' %}selected{% endif %}>polynomial</option>
+            <option value="rbf" {% if not 'kernel' in parameter or parameter['kernel'] == 'rbf' %}selected{% endif %}>rbf</option>
+            <option value="sigmoid" {% if parameter['kernel'] == 'sigmoid' %}selected{% endif %}>sigmoid</option>
+          </select>
+        </div>
+        
+        <div class="row required SVC NuSVC">
+          <label class="control-label">degree: </label>
+          <input type="number" class="form-control" name="degree" min="0" value="{% if 'degree' in parameter %}{{ parameter['degree'] }}{% else %}3{% endif %}" />
+        </div>
+        
+        <div class="row required SVC NuSVC">
+          <label class="control-label">gamma: </label>
+          <input type="number" class="form-control" name="gamma" min="0.0" value="{% if 'gamma' in parameter %}{{ parameter['gamma'] }}{% else %}0.0{% endif %}" step="0.1" />
+        </div>
+        
+        <div class="row required SVC NuSVC">
+          <label class="control-label">coef0: </label>
+          <input type="number" class="form-control" name="coef0" min="0.0" value="{% if 'coef0' in parameter %}{{ parameter['coef0'] }}{% else %}0.0{% endif %}" step="0.1" />
+        </div>
+        
+        <!--
+        <div class="row required LinearSVC">
+          <label class="control-label">loss: </label>
+          <select class="selectpicker" data-width="65%" name="loss">
+            <option value="l1" {% if parameter['loss'] == 'l1' %}selected{% endif %}>L1 - Hinge Loss </option>
+            <option value="l2" {% if not parameter['loss'] == 'l1' %}selected{% endif %}>L2 - Squared Hinge Loss</option>
+          </select>
+        </div>
+        
+        <div class="row required LinearSVC">
+          <label class="control-label">penalty: </label>
+          <select class="selectpicker" data-width="65%" name="penalty">
+            <option value="l1" {% if parameter['penalty'] == 'l1' %}selected{% endif %}>L1 - Sparse coef_ vectors</option>
+            <option value="l2" {% if not parameter['penalty'] == 'l1' %}selected{% endif %}>L2 - Standard</option>
+          </select>
+        </div>
+        -->
+        
+        <div class="row required GradientBoostingClassifier">
+          <label class="control-label">loss: </label>
+          <select class="selectpicker" data-width="65%" name="loss">
+            <option value="deviance" {% if parameter['loss'] == 'deviance' %}selected{% endif %}>Deviance</option>
+            <option value="other" disabled>Other</option>
+          </select>
+        </div>
+        
+        <div class="row required AdaBoostClassifier BaggingClassifier">
+          <label class="control-label">base_estimator: </label>
+          <input type="text" class="form-control" name="base_estimator" value="{% if 'base_estimator' in parameter %}{{ parameter['base_estimator'] }}{% else %}Object Type Input{% endif %}" disabled/>
+        </div>
+        
+        <div class="row required GradientBoostingClassifier AdaBoostClassifier">
+          <label class="control-label">learning_rate: </label>
+          <input type="number" class="form-control" name="learning_rate" min="0.1" value="{% if 'learning_rate' in parameter %}{{ parameter['learning_rate'] }}{% else %}0.1{% endif %}" step="0.1" />
+        </div>
+        
+        <div class="row required ExtraTreesClassifier BaggingClassifier AdaBoostClassifier RandomForestClassifier GradientBoostingClassifier">
+          <label class="control-label">n_estimators: </label>
+          <input type="number" class="form-control" name="n_estimators" min="1" value="{% if 'n_estimators' in parameter %}{{ parameter['n_estimators'] }}{% else %}10{% endif %}" step="1" />
+        </div>
+        
+        <div class="row required DecisionTreeClassifier RandomForestClassifier ExtraTreesClassifier">
+          <label class="control-label">criterion: </label>
+          <select class="selectpicker" data-width="65%" name="criterion">
+            <option value="gini" {% if parameter['criterion'] == 'gini' %}selected{% endif %}>Gini impurity</option>
+            <option value="entropy" {% if parameter['entropy'] == 'entropy' %}selected{% endif %}>Information gain</option>
+          </select>
+        </div>
+        
+        <div class="row required DecisionTreeClassifier">
+          <label class="control-label">splitter: </label>
+          <select class="selectpicker" data-width="65%" name="splitter">
+            <option value="best" {% if parameter['splitter'] == 'best' %}selected{% endif %}>Best split</option>
+            <option value="random" {% if parameter['splitter'] == 'random' %}selected{% endif %}>Best random split</option>
+          </select>
+        </div>
+        
+        <div class="row required BaggingClassifier">
+          <label class="control-label">max_samples: </label>
+          <input type="number" class="form-control" name="max_samples" min="1" value="{% if 'max_samples' in parameter %}{{ parameter['max_samples'] }}{% else %}1.0{% endif %}" step="0.1" />
+        </div>
+        
+        <div class="row required DecisionTreeClassifier BaggingClassifier RandomForestClassifier ExtraTreesClassifier GradientBoostingClassifier">
+          <label class="control-label">max_features: </label>
+          <select class="selectpicker" data-width="65%" name="max_features">
+            <option value="None" {% if parameter['max_features'] == 'None' %}selected{% endif %}>None</option>
+            <option value="auto" {% if parameter['max_features'] == 'auto' %}selected{% endif %}>Auto</option>
+            <option value="sqrt" {% if parameter['max_features'] == 'sqrt' %}selected{% endif %}>Square root</option>
+            <option value="log2" {% if parameter['max_features'] == 'log2' %}selected{% endif %}>Log2</option>
+          </select>
+        </div>
+        
+        <div class="row required MultinomialNB BernoulliNB">
+          <label class="control-label">alpha: </label>
+          <input type="number" class="form-control" name="alpha" value="{% if 'alpha' in parameter %}{{ parameter['alpha'] }}{% else %}1.0{% endif %}" step="0.1" min='0' />
+        </div>
+        
+        <div class="row BernoulliNB">
+          <label class="control-label">binarize: </label>
+          <input type="number" class="form-control" name="binarize" value="{% if 'binarize' in parameter %}{{ parameter['binarize'] }}{% endif %}" step="0.01" min='0' />
+        </div>
+        
+        <div class="row required KNeighborsClassifier">
+          <label class="control-label">n_neighbors: </label>
+          <input type="number" class="form-control" name="n_neighbors" value="{% if 'n_neighbors' in parameter %}{{ parameter['n_neighbors'] }}{% else %}5{% endif %}" step="1" min='2' />
+        </div>
+        
+        <div class="row required KNeighborsClassifier">
+          <label class="control-label">weights: </label>
+          <select class="selectpicker" data-width="65%" name="weights">
+            <option value="uniform" {% if parameter['weights'] == 'uniform' %}selected{% endif %}>Uniform</option>
+            <option value="distance" {% if parameter['weights'] == 'auto' %}selected{% endif %}>Distance</option>
+            <option value="[callable]" disabled>[callable]</option>
+          </select>
+        </div>
+        
+        <div class="row required KNeighborsClassifier">
+          <label class="control-label">algorithm: </label>
+          <select class="selectpicker" data-width="65%" name="algorithm">
+            <option value="auto" {% if parameter['algorithm'] == 'auto' %}selected{% endif %}>Auto</option>
+            <option value="ball_tree" {% if parameter['algorithm'] == 'ball_tree' %}selected{% endif %}>Ball Tree</option>
+            <option value="kd_tree" {% if parameter['algorithm'] == 'kd_tree' %}selected{% endif %}>KD Tree</option>
+          </select>
+        </div>
+        
+        <div class="row required AdaBoostClassifier">
+          <label class="control-label">algorithm: </label>
+          <select class="selectpicker" data-width="65%" name="algorithm">
+            <option value="SAMME" {% if parameter['algorithm'] == 'SAMME' %}selected{% endif %}>SAMME</option>
+            <option value="SAMME.R" {% if not 'algorithm' in parameter or parameter['algorithm'] == 'SAMME.R' %}selected{% endif %}>SAMME.R</option>
+          </select>
+        </div>
+        
+        <!-- Advanced Option Enable/Disable-->
+        <div class="action">
+          <label class="control-label">
+            <input id="useAdvanced" name="advanced" type="checkbox" />
+            Advanced Options
+            <span class="glyphicon glyphicon-question-sign" 
+                aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                title="Input parameter name and value by yourselves"></span>
+          </label>
+        </div>
+        
+        <!-- Below this point are advanced options -->
+        <div id="advancedOption" class="hidden">
+          <div class="row required SVC NuSVC">
+            <label class="control-label">shrinking: </label>
+            <select class="selectpicker" data-width="65%" name="shrinking">
+              <option value="True" {% if parameter['shrinking'] == True %}selected{% endif %}>True</option>
+              <option value="False" {% if parameter['shrinking'] == False %}selected{% endif %}>False</option>
+            </select>
+          </div>
+          
+          <div class="row required SVC NuSVC">
+            <label class="control-label">probability: </label>
+            <select class="selectpicker" data-width="65%" name="probability" disabled>
+              <option value="True" selected>True</option>
+              <option value="False">False</option>
+            </select>
+          </div>
+          
+          <div class="row required SVC NuSVC">
+            <label class="control-label">tol: </label>
+            <input type="number" class="form-control" name="tol" value="{% if 'tol' in parameter %}{{ parameter['tol'] }}{% else %}0.001{% endif %}" step="0.001" />
+          </div>
+          
+          <div class="row required SVC NuSVC">
+            <label class="control-label">cache_size: </label>
+            <input type="number" class="form-control" name="cache_size" value="{% if 'cache_size' in parameter %}{{ parameter['cache_size'] }}{% else %}200{% endif %}" step="0.1" />
+          </div>
+          
+          <div class="row required SVC NuSVC RandomForestClassifier GradientBoostingClassifier BaggingClassifier ExtraTreesClassifier">
+            <label class="control-label">verbose: </label>
+            <select class="selectpicker" data-width="65%" name="verbose">
+              <option value="True" {% if parameter['verbose'] == True %}selected{% else %}{% endif %}>True</option>
+              <option value="False" {% if parameter['verbose'] == False or not parameter['verbose'] %}selected{% endif %}>False</option>
+            </select>
+          </div>
+          
+          <div class="row required SVC NuSVC">
+            <label class="control-label">max_iter: </label>
+            <input type="number" class="form-control" name="max_iter" value="{% if 'max_iter' in parameter %}{{ parameter['max_iter'] }}{% else %}-1{% endif %}" min="-1"/>
+          </div>
+          
+          <div class="row required GradientBoostingClassifier">
+            <label class="control-label">learning_rate: </label>
+            <input type="number" class="form-control" name="learning_rate" min="0.1" value="{% if 'learning_rate' in parameter %}{{ parameter['learning_rate'] }}{% else %}0.1{% endif %}" step="0.1" />
+          </div>
+        
+          <div class="row required GradientBoostingClassifier">
+            <label class="control-label">subsample: </label>
+            <input type="number" class="form-control" name="subsample" value="{% if 'subsample' in parameter %}{{ parameter['subsample'] }}{% else %}1.0{% endif %}" min="0.1" step="0.1" />
+          </div>
+          
+          <div class="row DecisionTreeClassifier">
+            <label class="control-label">max_depth: </label>
+            <input type="number" class="form-control" name="max_depth" value="{% if 'max_depth' in parameter %}{{ parameter['max_depth'] }}{% endif %}" min="1" step="1" />
+          </div>
+          
+          
+          <div class="row required DecisionTreeClassifier ExtraTreesClassifier GradientBoostingClassifier">
+            <label class="control-label">min_samples_split: </label>
+            <input type="number" class="form-control" name="min_samples_split" value="{% if 'min_samples_split' in parameter %}{{ parameter['min_samples_split'] }}{% else %}2{% endif %}" min="1" step="1" />
+          </div>
+          
+          <div class="row required DecisionTreeClassifier RandomForestClassifier ExtraTreesClassifier GradientBoostingClassifier">
+            <label class="control-label">min_samples_leaf: </label>
+            <input type="number" class="form-control" name="min_samples_leaf" value="{% if 'min_samples_leaf' in parameter %}{{ parameter['min_samples_leaf'] }}{% else %}1{% endif %}" min="1" step="1" />
+          </div>
+          
+          <div class="row DecisionTreeClassifier RandomForestClassifier ExtraTreesClassifier GradientBoostingClassifier">
+            <label class="control-label">max_leaf_nodes: </label>
+            <input type="number" class="form-control" name="max_leaf_nodes" value="{% if 'max_leaf_nodes' in parameter %}{{ parameter['max_leaf_nodes'] }}{% endif %}" min="1" step="1" />
+          </div>
+          
+          <div class="row required ExtraTreesClassifier BaggingClassifier RandomForestClassifier">
+            <label class="control-label">bootstrap: </label>
+            <select class="selectpicker" data-width="65%" name="bootstrap">
+              <option value="True" {% if parameter['bootstrap'] == True %}selected{% endif %}>True</option>
+              <option value="False" {% if not 'bootstrap' in parameter or parameter['bootstrap'] == False %}selected{% endif %}>False</option>
+            </select>
+          </div>
+          
+          <div class="row required ExtraTreesClassifier BaggingClassifier RandomForestClassifier">
+            <label class="control-label">oob_score: </label>
+            <select class="selectpicker" data-width="65%" name="oob_score">
+              <option value="True" {% if parameter['oob_score'] == True %}selected{% endif %}>True</option>
+              <option value="False" {% if parameter['oob_score'] == False %}selected{% endif %}>False</option>
+            </select>
+          </div>
+          
+          <div class="row required ExtraTreesClassifier BaggingClassifier RandomForestClassifier">
+            <label class="control-label">n_jobs: </label>
+            <input type="number" class="form-control" name="n_jobs" value="{% if 'n_jobs' in parameter %}{{ parameter['n_jobs'] }}{% else %}1{% endif %}" min="1" step="1" />
+          </div>
+          
+          <div class="row SVC NuSVC DecisionTreeClassifier RandomForestClassifier AdaBoostClassifier BaggingClassifier ExtraTreesClassifier">
+            <label class="control-label">random_state: </label>
+            <input type="number" class="form-control" name="random_state"/>
+          </div>
+          
+          <div class="row MultinomialNB BernoulliNB">
+            <label class="control-label">fit_prior: </label>
+            <select class="selectpicker" data-width="65%" name="fit_prior" disabled>
+              <option value="True">True</option>
+              <option value="False" selected>False</option>
+            </select>
+          </div>
+          
+          <div class="row MultinomialNB BernoulliNB">
+            <label class="control-label">class_prior: </label>
+            <input class="form-control" type="text" name="class_prior" disabled/>
+          </div>
+        
+          <div class="row required KNeighborsClassifier">
+            <label class="control-label">leaf_size: </label>
+            <input type="number" class="form-control" name="leaf_size" value="{% if 'leaf_size' in parameter %}{{ parameter['leaf_size'] }}{% else %}30{% endif %}" step="1" min='10' />
+          </div>
+          
+          <div class="row required KNeighborsClassifier">
+            <label class="control-label">metric: </label>
+            <select class="selectpicker" data-width="65%" name="metric">
+              <option value="minkowski" {% if parameter['metric'] == 'minkowski' %}selected{% endif %}>minkowski (p=2)</option>
+              <option value="DistanceMetricObject" disabled>DistanceMetric object</option>
+            </select>
+          </div>
+          
+          <div class="row required KNeighborsClassifier">
+            <label class="control-label">p: </label>
+            <input type="number" class="form-control" name="p" value="{% if 'p' in parameter %}{{ parameter['p'] }}{% else %}2{% endif %}" step="1" min='1' />
+          </div>
+          
+          <div class="row KNeighborsClassifier">
+            <label class="control-label">metric_params: </label>
+            <input type="text" class="form-control" name="metric_params" value="{% if 'metric_params' in parameter %}{{ parameter['metric_params'] }}{% else %}None{% endif %}" />
+          </div>
+          
+          <div class="row required GradientBoostingClassifier">
+            <label class="control-label">warm_start: </label>
+            <select class="selectpicker" data-width="65%" name="metric">
+              <option value="True" {% if parameter['warm_start'] == True %}selected{% endif %}>True</option>
+              <option value="False" {% if not 'warm_start' in parameter or parameter['warm_start'] == False %}selected{% endif %}>False</option>
+            </select>
+          </div>
+        
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script type="text/javascript">
+    $("body").on('change', "#learningAlgorithm", function(e) {
+      setApplicableCLF();
+      setApplicableConfig();
+    });
+    
+    $("body").on('change', "#classifierClass", function(e) {
+      setApplicableConfig();
+    });
+    
+    //Set select algorithm and corresponding available classifiers
+    function setApplicableCLF(isInit){
+      if(isInit == null)
+        isInit = false;
+      var algorithmSelected = $("#learningAlgorithm option:selected");
+      $('#classifierClass option').css("display", 'none');
+      $('#classifierClass option.' + $(algorithmSelected).val()).css("display", 'initial');
+      if(isInit == false)
+        $('#classifierClass option.' + $(algorithmSelected).val() + ':first').prop('selected', true);
+      $('.selectpicker').selectpicker('refresh');
+    }
+    
+    //Display only those fields that available for the selected classifier
+    function setApplicableConfig(){
+      var algorithmSelected = $("#classifierClass option:selected");
+      $('#createProject div.row:not(div.top)').css("display", 'none');
+      $('#createProject div.row.' + $(algorithmSelected).val()).css("display", 'block');
+      $('.selectpicker').selectpicker('refresh');
+    }
+  
+    //advanced option control
+    $("#useAdvanced").click(function(e) {
+      if($("#useAdvanced").prop("checked")) {
+        $("#advancedOption").removeClass("hidden");
+        $("#advancedOption").show();
+      }
+      else {
+        $("#advancedOption").hide();
+        $("#newParameter").addClass("hidden");
+        
+        $('#advancedOption input').each(
+          function(){$(this).val($(this).attr('data-originalValue'));}
+        );
+        
+        $('#advancedOption select').each(
+          function(){
+            $(this).val($(this).attr('data-originalValue'));
+            $('.selectpicker').selectpicker('refresh');
+          }
+        );
+      }
+    });
+    
+    $('#advancedOption input').each(
+      function(){
+        $(this).attr('data-originalValue',$(this).val());
+    });
+    
+    $('#advancedOption select').each(
+       function(){
+        $(this).attr('data-originalValue',$(this).val());
+    });
+    
+    $(document).ready(function() {
+      setApplicableCLF(true);
+      setApplicableConfig();
+    
+    {% if parameter['inExecution'] == 'training' %}
+    //Application is in execution. No modification on sklearn setting is allowed
+    disableAllFields();
+    $('#useAdvanced').prop('disabled', false);
+    addMessage('warning', 'Training process is in execution. You are not allowed to edit the setting in this moment.');
+    {% endif %}
+    });
+  </script>
+{% endblock %}

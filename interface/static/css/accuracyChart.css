@@ -1,0 +1,163 @@
+@import url(//fonts.googleapis.com/css?family=Open+Sans:400,700);
+
+#accuracyChart svg {
+  font: 14px 'Open Sans';
+}
+
+#accuracyChart .axis path,
+#accuracyChart .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+#accuracyChart .axis text {
+  fill: #000;
+}
+
+#accuracyChart .axis .tick line {
+  stroke: rgba(0, 0, 0, 0.1);
+}
+
+#accuracyChart .area {
+  stroke-width: 1;
+}
+
+#accuracyChart .area.upper,
+#accuracyChart .legend .upper {
+  fill: rgba(187, 255, 255, 0.3);
+  stroke: rgba(142, 229, 238, 0.5);
+}
+
+#accuracyChart .mouseUpperPoint {
+  fill: rgba(255, 255, 255, 1);
+  stroke: rgba(142, 229, 238, 1);
+  stroke-width: 2;
+}
+
+#accuracyChart .area.lower,
+#accuracyChart .legend .lower {
+  fill: rgba(30, 144, 255, 0.2);
+  stroke: rgba(30, 144, 255, 0.5);
+}
+
+#accuracyChart .mouseLowerPoint {
+  fill: rgba(255, 255, 255, 1);
+  stroke: rgba(30, 144, 255, 1);
+  stroke-width: 2;
+}
+
+#accuracyChart .mean-line,
+#accuracyChart .legend .mean-line {
+  fill: none;
+  stroke: rgba(58, 95, 205, 0.5);
+  stroke-width: 3;
+}
+
+#accuracyChart .mouseMeanPoint {
+  fill: rgba(255, 255, 255, 1);
+  stroke: rgba(58, 95, 205, 1);
+  stroke-width: 2;
+}
+
+#accuracyChart .controlGroupAccuracy-line,
+#accuracyChart .legend .controlGroupAccuracy-line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.7);
+  stroke-width: 4;
+}
+
+#accuracyChart .mouseControlGroupAccuracyPoint {
+  fill: rgba(255, 255, 255, 1);
+  stroke: rgba(0, 0, 200, 1);
+  stroke-width: 3;
+}
+
+#accuracyChart .legend .legend-bg {
+  fill: rgba(0, 0, 0, 0.3);
+  stroke: rgba(0, 0, 0, 0.3);
+}
+
+#accuracyChart .tooltipbox {
+  fill: rgba(0, 0, 0, 0.5);
+  stroke: rgba(0, 0, 0, 0.5);
+  stroke-width: 2;
+}
+
+#accuracyChart .mouseLine {
+  fill: rgba(0, 0, 0, 0.3);
+  stroke: rgba(0, 0, 0, 0.3);
+  stroke-width: 3;
+}
+
+#accuracyChart .marker.start .marker-bg,
+#accuracyChart .marker.start path {
+  fill: rgba(135, 206, 235, 0.8);
+  stroke: rgba(30, 144, 255, 0.5);
+  stroke-width: 3;
+}
+
+#accuracyChart .marker.finish .marker-bg,
+#accuracyChart .marker.finish path {
+  fill: rgba(144, 238, 144, 0.8);
+  stroke: rgba(0, 153, 51, 0.5);
+  stroke-width: 3;
+}
+
+#accuracyChart .marker.finishwitherror .marker-bg,
+#accuracyChart .marker.finishwitherror path {
+  fill: rgba(255, 106, 106, 0.8);
+  stroke: rgba(255, 64, 64, 0.5);
+  stroke-width: 3;
+}
+
+#accuracyChart .marker.terminatedasrequests .marker-bg,
+#accuracyChart .marker.terminatedasrequests path {
+  fill: rgba(238, 201, 0, 0.8);
+  stroke: rgba(218, 165, 32, 0.5);
+  stroke-width: 3;
+}
+
+#accuracyChart .marker path {
+  fill: none;
+}
+
+#accuracyChart .overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+#accuracyChart .tooltipText {
+  fill: #fff;
+  font-size: 12px;
+}
+
+#accuracyChart .tooltipText-danger {
+  fill: #FF6A6A;
+  font-size: 12px;
+}
+
+#accuracyChart .tooltipText-warning {
+  fill: #EEC900;
+  font-size: 12px;
+}
+
+#accuracyChart .legend text {
+  fill: #fff;
+}
+
+#accuracyChart .zone-edge {
+  fill: #fff;
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+#accuracyChart .legend text.section,
+#accuracyChart .marker text {
+  fill: #fff;
+  font-weight: bold;
+}
+
+#accuracyChart .marker text {
+  text-anchor: middle;
+}

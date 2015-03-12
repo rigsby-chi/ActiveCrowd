@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block head %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="col-md-1"></div>
+  <div class="col-md-10 main">
+    <div id="message"></div>
+    <h1 class="page-header">Create project</h1>
+    <form role="form" enctype="multipart/form-data" id="createProject" method="POST">
+      
+      <!-- First part: Project Information -->
+      <fieldset id="part1">
+        <legend>Project information</legend>
+        <div class="row required">
+          <label class="control-label">Project Name: </label>
+          <div class="inputField">
+            <input type="text" class="form-control" name="projectName" maxlength="50">
+            <span class="glyphicon glyphicon-question-sign" 
+                    aria-hidden="true" data-toggle="tooltip" data-placement="top" 
+                    title="An unique name for the project."></span>
+          </div>
+        </div>
+        
+        <div class="row">
+          <label class="control-label">Project Description: </label>
+          <textarea name="projectDescription" class="form-control" form="createProject"></textarea>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block endScript %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script type="text/javascript">
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    //Ask server side to check project name uniqueness
+    $("body").on('click', '.action > button[name="save"]', function(e) {
+      $(window).scrollTop(0);
+      if ( $('#message').is(':empty') ){
+        $.getJSON($SCRIPT_ROOT + '/project/_tryCreateProject', {
+          projectName:        $('input[name="projectName"]').val()
+        }, function(data) {
+          if(data.hasOwnProperty('errorMessage')) {
+            addMessage('danger', data.errorMessage);
+          } else if (data.hasOwnProperty('successMessage')) {
+            $('#createProject').submit();
+          }
+        });
+      }
+      return false;
+    });
+    
+  </script>
+{% endblock %}

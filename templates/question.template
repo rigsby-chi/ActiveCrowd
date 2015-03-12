@@ -1,0 +1,7 @@
+<QuestionForm xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd">
+  <Overview>
+    <Title>{0}</Title>
+    <FormattedContent><![CDATA[{1}]]></FormattedContent>
+  </Overview>
+{2}
+</QuestionForm>

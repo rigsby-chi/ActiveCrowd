@@ -1,0 +1,17 @@
+def clearMurk(useSandbox):
+  logger = Logger(projectName, db['db'], db['db_user'], db['db_password'])
+  logger.log('info', '--------- Clearing MTurk Account ---------')
+  mc = MTurkConnector(project = projectName, 
+                         db = db['db'],
+                         db_user = db['db_user'],
+                         db_password = db['db_password'],
+                         root_path = "project", 
+                         aws_key = activeMTurk['AWSKey'], 
+                         aws_secret_key = activeMTurk['AWSSecretKey'],
+                         use_sandbox = useSandbox,
+                         logger = logger)
+  mc.set_properties_file(properties_file = propertiesFile)
+  mc.set_question_file(question_file = questionFile)
+  
+  mc.reset_account()
+  logger.log('success', '--------- Clearing MTurk Account Completed ---------')
