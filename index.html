@@ -132,12 +132,15 @@ $ psql -s activecrowd
 <pre><code>local   all             all                                     peer
 </code></pre>
 
-<p>Replace peer to md5:</p>
+<p>Replace peer to md5 and save the file:</p>
 
 <pre><code>local   all             all                                     md5
 </code></pre>
 
-<p>Save the file and execute <code>sudo service postgresql restart</code> to restart PostgreSQL</p>
+<p>Finally, execute restart the PostgreSQL service:</p>
+
+<pre><code>sudo service postgresql restart
+</code></pre>
 
 <h3>
 <a id="1-3-framework-setup" class="anchor" href="#1-3-framework-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. 3 Framework Setup</h3>
