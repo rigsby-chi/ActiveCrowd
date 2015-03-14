@@ -124,6 +124,8 @@ $ createdb activecrowd
 $ psql -s activecrowd
 # create user &lt;user_name&gt; password '&lt;user_password&gt;';
 # GRANT ALL PRIVILEGES ON DATABASE activecrowd TO &lt;user_name&gt;;
+# \q
+$ su - &lt;original_user_name&gt;
 </code></pre>
 
 <p>Also, you need to change the authentication method from peer to md5 by executing the following command to open <code>pg_hba.conf</code>:</p>
