@@ -22,7 +22,7 @@ _*This framework is design for Linux. No Windows version is available for now._
 ***
 ## 1. Installation and Setup
 ### 1. 1 Necessary software and packages
-To use the ActiveCrowd framework, first you need Python, PostgreSQL and some libraries installed:  
+To use the ActiveCrowd framework, you need Python, PostgreSQL and some libraries installed:  
 * Python 2.7  
 * PostgreSQL
 * Java Runtime Environment (JRE)
@@ -77,6 +77,8 @@ $ createdb activecrowd
 $ psql -s activecrowd
 # create user <user_name> password '<user_password>';
 # GRANT ALL PRIVILEGES ON DATABASE activecrowd TO <user_name>;
+# \q
+$ su - <original_user_name>
 ```
 
 Also, you need to change the authentication method from peer to md5 by executing the following command to open `pg_hba.conf`:
