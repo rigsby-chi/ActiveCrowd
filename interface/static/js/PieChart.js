@@ -7,8 +7,6 @@ function getPieChartData(url, chartInfo, displaySelector){
     count = 0;
     retievedData = tempHITData.data.map(function (d) {
       count ++;
-      console.log(d.description);
-      console.log(count-1);
       return {
         label: d.description,
         rate: parseFloat(d.rate),
