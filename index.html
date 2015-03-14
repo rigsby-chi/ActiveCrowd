@@ -81,9 +81,12 @@ sudo apt-get install python2.7
 sudo apt-get install build-essential python-dev python-pip \
                      python-setuptools python-numpy python-scipy \
                      libpq-dev libatlas-dev libatlas3gf-base \
-                     postgresql postgresql-contrib default-jre
-sudo update-alternatives --set libblas.so.3 /usr/lib/atlas-base/atlas/libblas.so.3
-sudo update-alternatives --set liblapack.so.3 /usr/lib/atlas-base/atlas/liblapack.so.3
+                     postgresql postgresql-contrib \
+                     default-jre
+sudo update-alternatives --set libblas.so.3 \
+    /usr/lib/atlas-base/atlas/libblas.so.3
+sudo update-alternatives --set liblapack.so.3 \
+    /usr/lib/atlas-base/atlas/liblapack.so.3
 sudo pip install --user --install-option="--prefix=" -U scikit-learn
 sudo pip install Flask
 sudo pip install psycopg2
