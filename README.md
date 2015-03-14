@@ -1,8 +1,12 @@
 # Welcome to ActiveCrowd.
 **Active Crowd** is an automated active learning framework that enable users to perform **low cost and efficient supervised learning** for classification 
+
 under environment that labels are not provided along with samples. It can select the most desirable samples to be labeled and thus dramatically the cost of 
+
 labeling and learning. Moreover, the **ActiveCrowd framework** provides the ability of submitting samples to **Amazon Mechanical Turk** so you can obtain 
+
 scalable and on-demand workforce to perform labeling labels instead of labeling samples by yourself. Comprehensive monitoring and performance evaluation tools 
+
 are also provided to adjust the learning direction, assess the learning efficiency and improve classification accuracy.  
 
 To run the framework, switch the current directory to the framework location and execute run.py:  
@@ -32,12 +36,12 @@ If you are using Ubuntu, you can install the above packages with the following c
 sudo add-apt-repository ppa:fkrull/deadsnakes
 sudo apt-get update
 sudo apt-get install python2.7
-sudo apt-get install postgresql postgresql-contrib
-sudo apt-get install default-jre
-sudo apt-get install python-numpy
-sudo apt-get install python-sklearn
-sudo apt-get install libpq-dev
-sudo apt-get install python-pip
+sudo apt-get install build-essential python-dev python-setuptools python-numpy python-scipy \
+                     libatlas-dev libatlas3gf-base libpq-dev \
+                     postgresql postgresql-contrib default-jre python-pip
+sudo update-alternatives --set libblas.so.3 /usr/lib/atlas-base/atlas/libblas.so.3
+sudo update-alternatives --set liblapack.so.3 /usr/lib/atlas-base/atlas/liblapack.so.3
+sudo pip install --user --install-option="--prefix=" -U scikit-learn
 sudo pip install Flask
 sudo pip install psycopg2
 ```  
@@ -46,6 +50,8 @@ You also need to set the "JAVA_HOME" environment variable. Execute the following
 ```
 sudo update-alternatives --config java
 ```  
+If it give you path `/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java`, then the path you need is `/usr/lib/jvm/java-7-openjdk-amd64`  
+
 Then execute the command:
 ```
 sudo gedit /etc/environment
@@ -77,12 +83,14 @@ Find the following line:
 ```
 local   all             all                                     peer
 ```
-Replace peer to md5:
+Replace peer to md5 and save the file:
 ```
 local   all             all                                     md5
 ```
-Save the file and execute `sudo service postgresql restart` to restart PostgreSQL
-
+Finally, execute restart the PostgreSQL service:
+```
+sudo service postgresql restart
+```
 ### 1. 3 Framework Setup
 Switch terminal's current directory to the unzipped framework folder and execute run.py:  
 ```
@@ -90,6 +98,23 @@ $ cd <path_to_framework>/ActiveCrowd
 $ python run.py
 ```  
 Then you can access the framework on any browser. The first launch of the framework require a simple setup operation. First you need to provide database name, 
+
 database user and database user password (as created in 1. 2):   
      
-![Framework first launch setup](http://i.imgur.com/6XtDAWJ.png)
+![Framework first launch database config](http://i.imgur.com/6XtDAWJ.png)
+        
+Secondly, you need to provide the AWS Key and AWS Secert Key of your Amazon account that is going to use the Amazon Mechanical Turk services. It is suggested to provide these value in this setup stage as a framework-wide default value so you don't need to configure it for each project one by one. Yet, you can leave it blank for now and modify later.
+ 
+![Framework first launch mturk config](http://i.imgur.com/zzQpOI1.png)
+
+To create a MTurk Requester account, please go to either of the following links:       
+https://requester.mturk.com/developer      
+
+To obtain your AWS Key and AWS Secert Key for MTurk services:         
+          
+1. Go to: https://console.aws.amazon.com/iam/home?region=us-east-1#security_credential    
+2. Expand the "Access Keys" section, click "Create New Access Key"         
+3. Click "Show Access Key" to note down the keys     
+           
+_*Since MTurk doesn't support IAM user, you must use these root keys. Please keep these two keys very secretly!_     
+
