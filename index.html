@@ -78,9 +78,10 @@ $ python run.py
 <pre><code>sudo add-apt-repository ppa:fkrull/deadsnakes
 sudo apt-get update
 sudo apt-get install python2.7
-sudo apt-get install build-essential python-dev python-setuptools python-numpy python-scipy \
-                     libatlas-dev libatlas3gf-base libpq-dev \
-                     postgresql postgresql-contrib default-jre python-pip
+sudo apt-get install build-essential python-dev python-pip \
+                     python-setuptools python-numpy python-scipy \
+                     libpq-dev libatlas-dev libatlas3gf-base \
+                     postgresql postgresql-contrib default-jre
 sudo update-alternatives --set libblas.so.3 /usr/lib/atlas-base/atlas/libblas.so.3
 sudo update-alternatives --set liblapack.so.3 /usr/lib/atlas-base/atlas/liblapack.so.3
 sudo pip install --user --install-option="--prefix=" -U scikit-learn
