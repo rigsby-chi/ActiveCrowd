@@ -17,7 +17,7 @@ $ python run.py
 Then you can access the framework via any browser as follow:   
             
 ![Home Page](http://i.imgur.com/bZATTVB.png)  
-_*This framework is design for Linux. No Windows version is available for now._
+_*This framework is designed for Linux. No Windows version is available for now._
   
 ***
 ## 1. Installation and Setup
