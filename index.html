@@ -78,12 +78,12 @@ $ python run.py
 <pre><code>sudo add-apt-repository ppa:fkrull/deadsnakes
 sudo apt-get update
 sudo apt-get install python2.7
-sudo apt-get install postgresql postgresql-contrib
-sudo apt-get install default-jre
-sudo apt-get install python-numpy
-sudo apt-get install python-sklearn
-sudo apt-get install libpq-dev
-sudo apt-get install python-pip
+sudo apt-get install build-essential python-dev python-setuptools \
+                     python-numpy python-scipy \
+                     libatlas-dev libatlas3gf-base \
+                     postgresql postgresql-contrib default-jre \
+                     libpq-dev python-pip
+sudo pip install --user --install-option="--prefix=" -U scikit-learn
 sudo pip install Flask
 sudo pip install psycopg2
 </code></pre>
