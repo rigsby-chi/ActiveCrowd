@@ -71,7 +71,8 @@
             <li>Columns must be separated by <b>tab ('\t')</b></li>
             <li>First column stores <u>samples</u> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="e.g. [21, 31, 169]"></span></li>
             <li>Second column stores <u>features</u> (in Python list) <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="e.g. [0.08203, 0.12109, 0.66015]"></span></li>
-            <li>Third column: <u>labels</u> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="e.g. True"></li>
+            <li>Third column stores <u>labels</u> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="e.g. True"></li>
+            <li>Fourth column stores control group indicator <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="e.g. 1 for using this sample for control group validation, 0 for using this sample for training"></li>
             <li class="text-warning">If a sample has no label, use <b>NULL</b> instead.</li>
           </ul>
           <form method="POST" enctype="multipart/form-data" class="action">
