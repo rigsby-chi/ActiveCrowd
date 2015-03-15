@@ -1,20 +1,12 @@
 # Welcome to ActiveCrowd.
-**Active Crowd** is an automated active learning framework that enable users to perform **low cost and efficient supervised learning** for classification 
-
-under environment that labels are not provided along with samples. It can select the most desirable samples to be labeled and thus dramatically the cost of 
-
-labeling and learning. Moreover, the **ActiveCrowd framework** provides the ability of submitting samples to **Amazon Mechanical Turk** so you can obtain 
-
-scalable and on-demand workforce to perform labeling labels instead of labeling samples by yourself. Comprehensive monitoring and performance evaluation tools 
-
-are also provided to adjust the learning direction, assess the learning efficiency and improve classification accuracy.  
+**ActiveCrowd** is an automated active learning framework that enables users to perform **low cost and efficient supervised learning** for classification under environment that labels are not provided along with samples. It can select the most desirable samples to be labeled and thus dramatically the cost of labeling and learning. Moreover, the **ActiveCrowd framework** provides the ability of submitting samples to **Amazon Mechanical Turk** so you can obtain scalable and on-demand workforce to perform labeling tasks instead of labeling samples by yourself. Comprehensive monitoring and performance evaluation tools are also provided for you to adjust the learning direction, assess the learning efficiency and improve classification accuracy.  
 
 To run the framework, switch the current directory to the framework location and execute run.py:  
 ```
 $ cd <path_to_framework>/ActiveCrowd
 $ python run.py
 ```  
-Then you can access the framework via any browser as follow:   
+Then you can access the framework via any browser like the following:   
             
 ![Home Page](http://i.imgur.com/bZATTVB.png)  
 _*This framework is designed for Linux. No Windows version is available for now._
@@ -54,15 +46,11 @@ sudo update-alternatives --config java
 ```  
 If it give you path `/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java`, then the path you need is `/usr/lib/jvm/java-7-openjdk-amd64`  
 
-Then execute the command:
-```
-sudo gedit /etc/environment
-```  
-Add a new row and save the file:
+Open `/etc/environment` with read and write privilege, and add the following row:
 ```
 JAVA_HOME="Path_To_Java"
 ```
-Finally, reload the file:
+Finally, save the file and reload it by executing:
 ```
 source /etc/environment
 ```
@@ -79,11 +67,9 @@ $ psql -s activecrowd
 $ su - <original_user_name>
 ```
 
-Also, you need to change the authentication method from peer to md5 by executing the following command to open `pg_hba.conf`:
-```
-sudo gedit /etc/postgresql/9.3/main/pg_hba.conf
-```
-Find the following line:
+Also, you need to change the authentication method from peer to md5.      
+           
+Open `/etc/postgresql/9.3/main/pg_hba.conf` with read and write privilege, and find the following line:
 ```
 local   all             all                                     peer
 ```
@@ -117,8 +103,8 @@ https://requester.mturk.com/developer
 To obtain your AWS Key and AWS Secert Key for MTurk services:         
           
 1. Go to: https://console.aws.amazon.com/iam/home?region=us-east-1#security_credential    
-2. Expand the "Access Keys" section, click "Create New Access Key"         
-3. Click "Show Access Key" to note down the keys     
+2. Expand the "Access Keys" section and click "Create New Access Key"         
+3. Click "Show Access Key" and note down the keys     
            
 _*Since MTurk doesn't support IAM user, you must use these root keys. Please keep these two keys very secretly!_     
 
