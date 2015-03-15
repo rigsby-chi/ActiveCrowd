@@ -201,7 +201,7 @@ def execution(projectName):
         samplesCSV = request.files['samplesCSV']
         conn = getDBConnectionFromConfig()[1]
         cur = conn.cursor()
-        header = ('sample', 'feature', 'label')
+        header = ('sample', 'feature', 'label', 'for_testing')
         cur.copy_from(file=samplesCSV, null='NULL', table='"' + projectName + '_samples"', columns=header)
         amount = cur.rowcount
         cur.execute('UPDATE "{0}_samples" SET (label_source) = (%s) WHERE label IS NOT NULL'.format(projectName), ('User provided', ))
