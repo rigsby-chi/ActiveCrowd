@@ -31,15 +31,7 @@
           <h1>
 <a id="welcome-to-activecrowd" class="anchor" href="#welcome-to-activecrowd" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to ActiveCrowd.</h1>
 
-<p><strong>Active Crowd</strong> is an automated active learning framework that enable users to perform <strong>low cost and efficient supervised learning</strong> for classification </p>
-
-<p>under environment that labels are not provided along with samples. It can select the most desirable samples to be labeled and thus dramatically the cost of </p>
-
-<p>labeling and learning. Moreover, the <strong>ActiveCrowd framework</strong> provides the ability of submitting samples to <strong>Amazon Mechanical Turk</strong> so you can obtain </p>
-
-<p>scalable and on-demand workforce to perform labeling labels instead of labeling samples by yourself. Comprehensive monitoring and performance evaluation tools </p>
-
-<p>are also provided to adjust the learning direction, assess the learning efficiency and improve classification accuracy.  </p>
+<p><strong>ActiveCrowd</strong> is an automated active learning framework that enables users to perform <strong>low cost and efficient supervised learning</strong> for classification under environment that labels are not provided along with samples. It can select the most desirable samples to be labeled and thus dramatically the cost of labeling and learning. Moreover, the <strong>ActiveCrowd framework</strong> provides the ability of submitting samples to <strong>Amazon Mechanical Turk</strong> so you can obtain scalable and on-demand workforce to perform labeling tasks instead of labeling samples by yourself. Comprehensive monitoring and performance evaluation tools are also provided for you to adjust the learning direction, assess the learning efficiency and improve classification accuracy.  </p>
 
 <p>To run the framework, switch the current directory to the framework location and execute run.py:  </p>
 
@@ -47,7 +39,7 @@
 $ python run.py
 </code></pre>
 
-<p>Then you can access the framework via any browser as follow:   </p>
+<p>Then you can access the framework via any browser like the following:   </p>
 
 <p><img src="http://i.imgur.com/bZATTVB.png" alt="Home Page"><br>
 <em>*This framework is designed for Linux. No Windows version is available for now.</em></p>
@@ -97,17 +89,12 @@ sudo pip install scikit-learn Flask psycopg2
 
 <p>If it give you path <code>/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java</code>, then the path you need is <code>/usr/lib/jvm/java-7-openjdk-amd64</code>  </p>
 
-<p>Then execute the command:</p>
-
-<pre><code>sudo gedit /etc/environment
-</code></pre>
-
-<p>Add a new row and save the file:</p>
+<p>Open <code>/etc/environment</code> with read and write privilege, and add the following row:</p>
 
 <pre><code>JAVA_HOME="Path_To_Java"
 </code></pre>
 
-<p>Finally, reload the file:</p>
+<p>Finally, save the file and reload it by executing:</p>
 
 <pre><code>source /etc/environment
 </code></pre>
@@ -126,12 +113,9 @@ $ psql -s activecrowd
 $ su - &lt;original_user_name&gt;
 </code></pre>
 
-<p>Also, you need to change the authentication method from peer to md5 by executing the following command to open <code>pg_hba.conf</code>:</p>
+<p>Also, you need to change the authentication method from peer to md5.      </p>
 
-<pre><code>sudo gedit /etc/postgresql/9.3/main/pg_hba.conf
-</code></pre>
-
-<p>Find the following line:</p>
+<p>Open <code>/etc/postgresql/9.3/main/pg_hba.conf</code> with read and write privilege, and find the following line:</p>
 
 <pre><code>local   all             all                                     peer
 </code></pre>
@@ -173,9 +157,9 @@ $ python run.py
 <ol>
 <li>Go to: <a href="https://console.aws.amazon.com/iam/home?region=us-east-1#security_credential">https://console.aws.amazon.com/iam/home?region=us-east-1#security_credential</a><br>
 </li>
-<li>Expand the "Access Keys" section, click "Create New Access Key"<br>
+<li>Expand the "Access Keys" section and click "Create New Access Key"<br>
 </li>
-<li>Click "Show Access Key" to note down the keys<br>
+<li>Click "Show Access Key" and note down the keys<br>
 </li>
 </ol>
 
