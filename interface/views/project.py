@@ -251,13 +251,14 @@ def exportSample(projectName):
       if not len(rows) > 0:
         s2cMessage('danger', 'Requested samples not found')
         return _render_template('project/export.html', parameter)
-      print len(rows)
+
       def genOutPut(rows):
         for row in rows:
+          for_test = '1' if row[3] == True else '0'
           if row[2] is None:
-            yield row[0] + '\t' + row[1] + '\t' + 'NULL' + '\n'
+            yield row[0] + '\t' + row[1] + '\t' + 'NULL' + '\t' + for_test + '\n'
           else:
-            yield row[0] + '\t' + row[1] + '\t' + str(row[2]) + '\n'
+            yield row[0] + '\t' + row[1] + '\t' + str(row[2]) + '\t' + for_test + '\n'
       
       return Response(genOutPut(rows), mimetype='text/csv')
       
