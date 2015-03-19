@@ -245,7 +245,7 @@ def exportSample(projectName):
       else:
         s2cMessage('danger', 'Undefined action')
         return _render_template('project/export.html', parameter)
-      cur.execute('''SELECT sample, feature, label, for_testing FROM "{0}"{1}'''.format(projectName + '_samples', WHERE))
+      cur.execute('''SELECT sample, feature, label, for_testing FROM "{0}"{1} ORDER BY sample_id ASC'''.format(projectName + '_samples', WHERE))
       rows = cur.fetchall()
       csv = ''
       if not len(rows) > 0:
