@@ -438,6 +438,7 @@ class LearningAutomation(object):
     """
     self.logger.log('info', 'Picking new samples...')
     #Generate a list of indices
+    np.random.seed(None)
     indices = np.random.randint(low=from_index, high=to_index, size=(number, 1)).tolist()
     
     #Pop samples from unlabeled sample pool
