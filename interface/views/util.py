@@ -11,10 +11,10 @@ def needSetup():
   Returns:
       A boolean of whether the framework is setup
   """
-   if os.path.exists(getRelativePath('config.json')):
-      return False
-   else:
-      return True
+  if os.path.exists(getRelativePath('config.json')):
+    return False
+  else:
+    return True
       
 def _render_template(template_path, parameter=None):
   """Render a requested template
