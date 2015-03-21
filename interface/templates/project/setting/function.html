@@ -34,11 +34,13 @@
           <div class="panel-body">
             <!-- Specification -->
             <p>This function defines how samples are transfered into information that going to be displayed on MTurk.</p>
-            <p><b><u>Parameter</u></b></p>
-            <p><i>self</i>: An instance of mturk_sklearn. Please ignore at this moment.</p>
-            <p><b><i>sample</i></b>: A sample</p>
-            <p><b><i>feature</i></b>: Features of the sample</p>
-            <p>If object scale variables are needed, you can define them in self.useDefine (dict type). <i>For example, self.useDefine['count'].</i></p>
+            <p><b>Parameter</b></p>
+            <p>- <u>self</u>: An instance of LearningAutomation.</p>
+            <p>- <u>sample</u>: A string of the sample which is the value in the first column in the imported CSV file</p>
+            <p>- <u>feature</u>: A list of the features which is the value in the second column in the imported CSV file</p>
+            <p><b>Returns</b></p>
+            <p>- A string of content to be display for the sample, or a list of string if each question has more than one placeholder</p>
+            <p class="text-info">If object scale variables are needed, you can define them in self.useDefine (dict type). <i>For example, self.useDefine['count'].</i></p>
             <!-- Code editor -->
             <div class="well">
               <div id="sample2Info">{% if parameter['sample2Info'] %}{{parameter['sample2Info'] }}{% else %}def sample2Info(self, sample, feature):
@@ -63,10 +65,12 @@
           <div class="panel-body">
             <!-- Specification -->
             <p>This function defines how answers returned by mturk workers are parsed into labels that are going to be passed to learner.</p>
-            <p><b><u>Parameter</u></b></p>
-            <p><i>self</i>: An instance of mturk_sklearn. Please ignore at this moment.</p>
-            <p><b><i>answer</i></b>: An answer for a question given by workers in <b>string</b> data type. Format of anwers are specified by question file, which can be configured in <a href="{{ url_for('projectSetting.mturk', projectName=projectName) }}">Active learning and MTurk Setting</a></p>
-            <p>If object scale variables are needed, you can define them in self.useDefine (dict type). <i>For example, self.useDefine['count'].</i></p>
+            <p><b>Parameters</b></p>
+            <p>- <u>self</u>: An instance of LearningAutomation. </p>
+            <p>- <u>answer</u>: A string containing an answer of a question given by a worker. Format of anwers are specified by question file, which can be configured in <a href="{{ url_for('projectSetting.mturk', projectName=projectName) }}">Active learning and MTurk Setting</a></p>
+            <p><b>Returns</b></p>
+            <p>- An integer, float, boolean or string as the label/class of the sample for classifer to learn on</p>
+            <p class="text-info">If object scale variables are needed, you can define them in self.useDefine (dict type). <i>For example, self.useDefine['count'].</i></p>
             <!-- Code editor -->
             <div class="well">
               <div id="answer2Label">{% if parameter['answer2Label'] %}{{ parameter['answer2Label'] }}{% else %}def answer2Label(self, answer):
