@@ -422,8 +422,7 @@ class Logger(object):
     if not self.db_conn is None:
       cur = self.db_conn.cursor()
       print '[' + msg_type + '] ' + message
-      cur.execute('INSERT INTO "{0}_logs" (time, type, message) ' + \
-                  'VALUES (CURRENT_TIMESTAMP, %s, %s)'.format(self.project), (msg_type, message,))
+      cur.execute('INSERT INTO "{0}_logs" (time, type, message) VALUES (CURRENT_TIMESTAMP, %s, %s)'.format(self.project), (msg_type, message,))
       self.db_conn.commit()
       
 class Recorder(object):
@@ -456,6 +455,5 @@ class Recorder(object):
     """
     if not self.db_conn is None:
       cur = self.db_conn.cursor()
-      cur.execute('INSERT INTO "{0}_learning_records" (time, record_type) ' + \
-                  """VALUES (CURRENT_TIMESTAMP, '{1}')""".format(self.project, recordType))
+      cur.execute("""INSERT INTO "{0}_learning_records" (time, record_type) VALUES (CURRENT_TIMESTAMP, '{1}')""".format(self.project, recordType))
       self.db_conn.commit()
