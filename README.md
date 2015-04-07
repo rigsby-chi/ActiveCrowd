@@ -82,7 +82,9 @@ Finally, execute restart the PostgreSQL service:
 sudo service postgresql restart
 ```
 ### 1. 3 Framework Setup
-Switch terminal's current directory to the unzipped framework folder and execute run.py:  
+First, you need to download the Amazon Mechanical Turk Command Line Tools from https://requester.mturk.com/developer/tools/clt by clicking "Unix Download". Unzip it and put the folder `aws-mturk-clt-1.3.1` under `<framework_path>/mturk`           
+                 
+To start the framework, switch terminal's current directory to the framework folder and execute run.py:  
 ```
 $ cd <path_to_framework>/ActiveCrowd
 $ python run.py
