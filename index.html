@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
     <!--[if lt IE 9]>
@@ -89,14 +89,9 @@ sudo pip install scikit-learn Flask psycopg2
 
 <p>If it give you path <code>/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java</code>, then the path you need is <code>/usr/lib/jvm/java-7-openjdk-amd64</code>  </p>
 
-<p>Open <code>/etc/environment</code> with read and write privilege, and add the following row:</p>
+<p>Open <code>~/.bashrc</code> with read and write privilege, and add the following row:</p>
 
-<pre><code>JAVA_HOME="Path_To_Java"
-</code></pre>
-
-<p>Finally, save the file and reload it by executing:</p>
-
-<pre><code>source /etc/environment
+<pre><code>export JAVA_HOME=Path_To_Java
 </code></pre>
 
 <h3>
