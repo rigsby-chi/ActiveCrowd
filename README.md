@@ -46,13 +46,9 @@ sudo update-alternatives --config java
 ```  
 If it give you path `/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java`, then the path you need is `/usr/lib/jvm/java-7-openjdk-amd64`  
 
-Open `/etc/environment` with read and write privilege, and add the following row:
+Open `~/.bashrc` with read and write privilege, and add the following row:
 ```
-JAVA_HOME="Path_To_Java"
-```
-Finally, save the file and reload it by executing:
-```
-source /etc/environment
+export JAVA_HOME=Path_To_Java
 ```
 
 ### 1. 2 PostgreSQL Configuration
@@ -109,4 +105,3 @@ To obtain your AWS Key and AWS Secert Key for MTurk services:
 3. Click "Show Access Key" and note down the keys     
            
 _*Since MTurk doesn't support IAM user, you must use these root keys. Please keep these two keys very secretly!_     
-
