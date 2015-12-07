@@ -10,7 +10,15 @@ Then you can access the framework via any browser like the following:
             
 ![Home Page](http://i.imgur.com/bZATTVB.png)  
 _*This framework is designed for Linux. No Windows version is available for now._
-  
+
+![Home Page](http://i.imgur.com/bZATTVB.png)  
+
+![Select learning algorithm](http://i.imgur.com/pHPZjWX.png)  
+
+![Accuracy Evaludation](http://i.imgur.com/iCH0BNa.png)  
+
+![Performance Tracking](http://i.imgur.com/qoOlUyl.png)  
+
 ***
 ## 1. Installation and Setup
 ### 1. 1 Necessary software and packages
