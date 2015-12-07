@@ -11,11 +11,14 @@ Then you can access the framework via any browser like the following:
 ![Home Page](http://i.imgur.com/bZATTVB.png)  
 _*This framework is designed for Linux. No Windows version is available for now._
 
-![Select learning algorithm](http://i.imgur.com/pHPZjWX.png)  
+_Learning Algorithm Configuration_
+![Select learning algorithm](http://i.imgur.com/fKEJY0I.png)  
 
-![Accuracy Evaludation](http://i.imgur.com/iCH0BNa.png)  
+_Classification Accuracy Evaluation_
+![Accuracy Evaludation](http://i.imgur.com/5PStVqF.png)  
 
-![Performance Tracking](http://i.imgur.com/qoOlUyl.png)  
+_MTurk Performance Tracking_
+![Performance Tracking](http://i.imgur.com/rbOPY1n.png)  
 
 ***
 ## 1. Installation and Setup
